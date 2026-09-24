@@ -470,14 +470,14 @@
         #loginOverlay > div { max-width:calc(100vw - 28px); }
         .presentation-banner { border-radius:14px; box-shadow:var(--ui-shadow); }
 
-        /* A deliberate light palette: soft blue-gray canvas, white cards, darker readable text. */
+        /* Low-glare light palette: muted blue-gray surfaces instead of pure white. */
         body.light-mode {
-            --bg:#f1f5fa;
-            --panel:#ffffff;
-            --panel-soft:#f7f9fc;
-            --line:#d8e2ed;
-            --ink:#172538;
-            --ink-soft:#5d6e83;
+            --bg:#dfe4ea;
+            --panel:#e8edf2;
+            --panel-soft:#dfe5eb;
+            --line:#c4ced8;
+            --ink:#293647;
+            --ink-soft:#657283;
             --brand:#0677ad;
             --brand-deep:#056c9e;
             --good:#087e5c;
@@ -485,56 +485,84 @@
             --warn:#98600a;
             --purple:#7049b7;
             --gold:#98610b;
+            --ui-shadow:0 14px 34px rgba(36,58,82,.075);
             color-scheme:light;
-            background:radial-gradient(ellipse at 7% 0%,rgba(14,165,233,.08),transparent 35%),radial-gradient(ellipse at 100% 3%,rgba(124,77,204,.055),transparent 32%),var(--bg);
+            background:radial-gradient(ellipse at 7% 0%,rgba(14,165,233,.045),transparent 35%),radial-gradient(ellipse at 100% 3%,rgba(124,77,204,.035),transparent 32%),var(--bg);
         }
-        body.light-mode header.dashboard-header { background:linear-gradient(135deg,rgba(255,255,255,.97),rgba(242,248,253,.98)) !important; border-color:#d5e1ed !important; box-shadow:0 12px 30px rgba(46,82,120,.09); }
+        body.light-mode header.dashboard-header { background:linear-gradient(135deg,#e8edf2,#dfe5eb) !important; border-color:#cbd4de !important; box-shadow:0 10px 26px rgba(46,66,88,.07); }
         body.light-mode .card,body.light-mode .filter-bar,body.light-mode .upload-box,body.light-mode .kpi-card,body.light-mode .comp-box,body.light-mode .assistant-box,body.light-mode .action-form {
-            background-color:var(--panel) !important; color:var(--ink) !important; border-color:var(--line) !important; box-shadow:0 8px 22px rgba(38,72,107,.07);
+            background-color:var(--panel) !important; color:var(--ink) !important; border-color:var(--line) !important; box-shadow:0 7px 19px rgba(38,58,80,.055);
         }
-        body.light-mode .upload-box { background:linear-gradient(145deg,rgba(8,127,184,.035),transparent 65%),#fff !important; }
-        body.light-mode .upload-box.loaded { background:linear-gradient(145deg,rgba(8,135,96,.07),transparent 65%),#fff !important; }
+        body.light-mode .upload-box { background:linear-gradient(145deg,rgba(8,127,184,.025),transparent 65%),var(--panel) !important; }
+        body.light-mode .upload-box.loaded { background:linear-gradient(145deg,rgba(8,135,96,.045),transparent 65%),var(--panel) !important; }
         body.light-mode .upload-box h2,body.light-mode #loginOverlay h2,body.light-mode #confidentialGate h2 { color:var(--ink) !important; }
         body.light-mode .upload-box p,body.light-mode .header-actions,body.light-mode .filter-bar label { color:var(--ink-soft); }
         body.light-mode .kpi-value,body.light-mode .card-header h2,body.light-mode header h1,body.light-mode .minutes-box h2 { color:var(--ink) !important; }
-        body.light-mode .btn:not(.success):not(.danger):not(.purple):not(.primary):not(.gold) { background:#fff; color:#26374c; border-color:#cad7e5; }
-        body.light-mode .btn:not(.success):not(.danger):not(.purple):not(.primary):not(.gold):hover { background:#f0f6fb; }
+        body.light-mode .btn:not(.success):not(.danger):not(.purple):not(.primary):not(.gold) { background:var(--panel-soft); color:#354356; border-color:var(--line); }
+        body.light-mode .btn:not(.success):not(.danger):not(.purple):not(.primary):not(.gold):hover { background:#dfe6ec; }
         body.light-mode .btn.primary { color:#fff; }
         body.light-mode .btn.success,body.light-mode .btn.danger,body.light-mode .btn.purple { color:#fff; }
         body.light-mode .btn.success { background:linear-gradient(135deg,#078760,#066b4f) !important; }
         body.light-mode .btn.danger { background:linear-gradient(135deg,#c83e4c,#b83240) !important; }
         body.light-mode .btn.purple { background:linear-gradient(135deg,#7650bb,#5c3d9e) !important; }
-        body.light-mode .btn.gold { color:#342100; }
-        body.light-mode .tab-btn { background:#edf3f8; color:#53657b; border-color:#d7e1eb; }
-        body.light-mode .tab-btn:hover { background:#e5f1f8; color:#174866; }
-        body.light-mode .tab-btn.active { background:linear-gradient(135deg,#e6f4fb,#fff); color:#076d9d; border-color:#a9d4e8; }
+        body.light-mode .btn.gold { color:#342100; background:linear-gradient(135deg,#e2b658,#cf9330); }
+        body.light-mode .tab-btn { background:#e3e8ed; color:#536174; border-color:#cbd4de; }
+        body.light-mode .tab-btn:hover { background:#dce4ea; color:#174866; }
+        body.light-mode .tab-btn.active { background:linear-gradient(135deg,#dce4eb,#e8edf2); color:#076d9d; border-color:#b5cbd8; }
         body.light-mode input,body.light-mode select,body.light-mode textarea,body.light-mode .filter-select,body.light-mode .search-input,body.light-mode .team-schedule-input {
-            background:#fff !important; color:var(--ink) !important; border-color:#cbd8e6 !important; box-shadow:inset 0 1px 2px rgba(26,53,81,.035);
+            background:var(--panel-soft) !important; color:var(--ink) !important; border-color:#c6d0da !important; box-shadow:inset 0 1px 2px rgba(26,53,81,.025);
         }
-        body.light-mode input::placeholder,body.light-mode textarea::placeholder { color:#8a99aa !important; }
-        body.light-mode table { background:#fff; }
-        body.light-mode th { background:#eaf2f8 !important; color:#145b7d !important; border-color:#d3e0eb !important; }
-        body.light-mode td { color:#314257 !important; border-color:#e4eaf1 !important; }
-        body.light-mode tbody tr:hover { background:#edf7fc !important; }
-        body.light-mode [style*="background: #0b111e"],body.light-mode [style*="background:#0b111e"] { background:#f2f6fa !important; }
-        body.light-mode [style*="background: #162238"],body.light-mode [style*="background:#162238"] { background:#f6f9fc !important; }
+        body.light-mode input::placeholder,body.light-mode textarea::placeholder { color:#7b8795 !important; }
+        body.light-mode table { background:var(--panel) !important; }
+        body.light-mode th { background:#dfe6ec !important; color:#145b7d !important; border-color:#cbd4de !important; }
+        body.light-mode td { color:#314257 !important; border-color:#d9e0e7 !important; }
+        body.light-mode tbody tr:hover { background:#e3eaf0 !important; }
+        body.light-mode [style*="background: #0b111e"],body.light-mode [style*="background:#0b111e"] { background:#e8edf1 !important; }
+        body.light-mode [style*="background: #162238"],body.light-mode [style*="background:#162238"] { background:#e4eaf0 !important; }
+        body.light-mode [style*="background:#fff"],body.light-mode [style*="background: #fff"],body.light-mode [style*="background:#ffffff"],body.light-mode [style*="background: #ffffff"] { background:var(--panel-soft) !important; }
         body.light-mode [style*="color: #fff"],body.light-mode [style*="color:#fff"],body.light-mode [style*="color: #e2e8f0"],body.light-mode [style*="color:#e2e8f0"] { color:var(--ink) !important; }
         body.light-mode #printMinutesContent [style*="color: #fff"],body.light-mode #printMinutesContent [style*="color:#fff"] { color:var(--ink) !important; }
         body.light-mode .btn[style*="color:#fff"],body.light-mode .btn[style*="color: #fff"] { color:#fff !important; }
-        body.light-mode .list-items li,body.light-mode .voice-row { background:#f8fafc !important; border-color:#dce5ee !important; }
-        body.light-mode .heatmap-table th.sticky-col,body.light-mode .heatmap-table td.sticky-col { background:#eaf1f7 !important; }
-        body.light-mode .presentation-banner { background:linear-gradient(100deg,#edf5ff,#f7f1ff) !important; color:#25364a !important; border-color:#cbb9ef; }
-        body.light-mode .role-hint { background:#eff8fc; border-color:#cce7f2; color:#52677d; }
-        body.light-mode .minutes-overlay { background:rgba(22,38,58,.30); }
-        body.light-mode .minutes-box { background:#fff !important; color:var(--ink) !important; border-color:#d6e0eb !important; }
-        body.light-mode #monthlyNoticeCard { background:linear-gradient(145deg,#fff,#f2f8fc) !important; color:var(--ink) !important; border-color:#b8d4e5 !important; }
-        body.light-mode #noticeMainTitleText { color:#172538 !important; }
+        body.light-mode .list-items li,body.light-mode .voice-row { background:#e8edf1 !important; border-color:#d0d9e1 !important; }
+        body.light-mode .heatmap-table th.sticky-col,body.light-mode .heatmap-table td.sticky-col { background:#dfe6ec !important; }
+        body.light-mode .presentation-banner { background:linear-gradient(100deg,#e5ecf2,#ebe7ef) !important; color:#303e50 !important; border-color:#c9bddb; }
+        body.light-mode .role-hint { background:#e5ebf0; border-color:#cbd7e0; color:#58697c; }
+        body.light-mode .minutes-overlay { background:rgba(35,49,66,.30); }
+        body.light-mode .minutes-box { background:var(--panel) !important; color:var(--ink) !important; border-color:#cbd4de !important; }
+        body.light-mode #monthlyNoticeCard { background:linear-gradient(145deg,#e8edf2,#dce3ea) !important; color:var(--ink) !important; border-color:#a9c5d5 !important; }
+        body.light-mode #noticeMainTitleText { color:#263345 !important; }
         body.light-mode #noticeUnitTitleText { color:#176e96 !important; }
-        body.light-mode #noticeMonthText { color:#8a5a0b !important; }
-        body.light-mode .team-schedule-table th { color:#145b7d !important; background:#eaf2f8 !important; }
-        body.light-mode .team-schedule-table td { color:#314257 !important; background:#fff; }
-        body.light-mode .notice-column-panel { background:#f5f8fb !important; }
-        body.light-mode #mMonthlyComparisonChartWrap { background:#f7fafc !important; }
+        body.light-mode #noticeMonthText { color:#805609 !important; }
+        body.light-mode .notice-settings,body.light-mode .notice-column-panel { background:var(--panel-soft) !important; border-color:var(--line) !important; }
+        body.light-mode .notice-settings:before { background:var(--panel) !important; }
+        body.light-mode .notice-column-panel label { background:#e1e7ed; border-color:#cbd4de; }
+        body.light-mode #monthlyNoticeOverlay .minutes-box { box-shadow:0 20px 48px rgba(30,48,68,.16); }
+        body.light-mode .team-schedule-table { background:var(--panel) !important; }
+        body.light-mode .team-schedule-table th { color:#31576c !important; background:#dfe6ec !important; }
+        body.light-mode .team-schedule-table td { color:#314257 !important; background:var(--panel) !important; }
+        body.light-mode .notice-column-panel { background:#e6ebf0 !important; }
+        body.light-mode #mMonthlyComparisonChartWrap { background:#e7ecf1 !important; }
+
+        .login-role-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; margin:16px 0 12px; text-align:right; }
+        .login-role-option { width:100%; min-width:0; min-height:70px; display:flex; align-items:center; gap:10px; padding:10px 11px; border:1px solid var(--line); border-radius:13px; background:var(--panel-soft); color:var(--ink); cursor:pointer; text-align:right; transition:transform .18s var(--ui-ease),border-color .18s ease,background .18s ease,box-shadow .18s ease; }
+        .login-role-option:hover { transform:translateY(-2px); background:color-mix(in srgb,var(--panel-soft) 88%,var(--brand) 12%); border-color:var(--brand); box-shadow:0 7px 16px rgba(20,60,90,.09); }
+        .login-role-icon { width:36px; height:36px; display:grid; place-items:center; flex:none; border-radius:11px; color:var(--role-color,var(--brand)); background:color-mix(in srgb,var(--role-color,var(--brand)) 12%,transparent); }
+        .login-role-copy { display:flex; flex:1; min-width:0; flex-direction:column; gap:2px; font-size:11.5px; font-weight:800; }
+        .login-role-copy small { color:var(--ink-soft); font-size:9.5px; font-weight:500; line-height:1.5; }
+        .login-role-arrow { color:var(--ink-soft); font-size:10px; }
+        .login-role-tele { --role-color:var(--good); }
+        .login-role-account { --role-color:var(--purple); }
+        .login-role-mlm { --role-color:var(--gold); }
+        .login-role-admin { --role-color:var(--brand); }
+        .login-admin-panel { margin:14px 0 10px; padding:13px; border:1px solid var(--line); border-radius:13px; background:var(--panel-soft); text-align:right; }
+        .login-admin-panel label { display:block; margin-bottom:6px; color:var(--ink-soft); font-size:11px; }
+        .login-admin-panel .login-field { margin-bottom:9px; }
+        .login-admin-panel #loginPassInput { margin:0; text-align:right; letter-spacing:1px; }
+        .login-admin-actions { display:flex; gap:8px; }
+        .login-admin-actions .btn { flex:1; justify-content:center; }
+        .login-security-note { margin-top:12px; color:var(--ink-soft); font-size:10px; line-height:1.8; }
+        #loginError { color:var(--bad); font-size:11px; margin:0 0 9px; }
+        @media (max-width:420px) { .login-role-grid { grid-template-columns:1fr; gap:7px; } .login-role-option { min-height:62px; } }
 
         @media (max-width:760px) {
             body { padding:8px; }
@@ -764,17 +792,37 @@
 </div>
 
 <div class="minutes-overlay" id="loginOverlay" style="display: flex; z-index: 20000;">
-    <div style="background: var(--panel); border: 1px solid var(--brand); padding: 30px; border-radius: 12px; text-align: center; width: 400px;">
-        <div style="font-size: 40px; color: var(--brand); margin-bottom: 15px;"><i class="fa-solid fa-shield-halved"></i></div>
-        <h2 style="font-size: 16px; margin-bottom: 5px; color: #fff;">احراز هویت کارشناس QC / مدیر</h2>
-        <p style="color: var(--ink-soft); font-size: 12px; margin-bottom: 20px;">رمز تیم خود را وارد کنید</p>
-        <div class="login-field">
-            <input type="password" id="loginPassInput" autocomplete="current-password" aria-label="رمز عبور تیم" placeholder="رمز عبور..." style="width: 100%; padding: 10px; background: var(--bg); color: #fff; border: 1px solid var(--line); border-radius: 6px; margin-bottom: 10px; font-family: Vazirmatn; text-align: center; letter-spacing: 3px;">
-            <button type="button" class="password-toggle" onclick="togglePasswordVisibility()" aria-label="نمایش یا مخفی‌کردن رمز" title="نمایش رمز"><i class="fa-solid fa-eye"></i></button>
+    <div style="background: var(--panel); border: 1px solid var(--brand); padding: 26px; border-radius: 18px; text-align: center; width: 440px;">
+        <div style="font-size: 38px; color: var(--brand); margin-bottom: 10px;"><i class="fa-solid fa-shield-halved"></i></div>
+        <h2 style="font-size: 16px; margin-bottom: 5px; color: #fff;">ورود به پنل کنترل کیفیت</h2>
+        <p style="color: var(--ink-soft); font-size: 12px; margin-bottom: 12px;">تیم یا سطح دسترسی را انتخاب کنید</p>
+        <div class="login-role-grid" id="loginRoleGrid" role="group" aria-label="انتخاب تیم یا سطح دسترسی">
+            <button type="button" class="login-role-option login-role-tele" onclick="doLogin('tele_qc')">
+                <span class="login-role-icon"><i class="fa-solid fa-headset"></i></span><span class="login-role-copy">تله‌سلز<small>کارشناس QC تیم تله‌سلز</small></span><i class="fa-solid fa-arrow-left login-role-arrow"></i>
+            </button>
+            <button type="button" class="login-role-option login-role-account" onclick="doLogin('account_qc')">
+                <span class="login-role-icon"><i class="fa-solid fa-handshake"></i></span><span class="login-role-copy">اکانت<small>کارشناس QC تیم اکانت</small></span><i class="fa-solid fa-arrow-left login-role-arrow"></i>
+            </button>
+            <button type="button" class="login-role-option login-role-mlm" onclick="doLogin('mlm_bmpl_qc')">
+                <span class="login-role-icon"><i class="fa-solid fa-network-wired"></i></span><span class="login-role-copy">MLM<small>کارشناس QC تیم MLM</small></span><i class="fa-solid fa-arrow-left login-role-arrow"></i>
+            </button>
+            <button type="button" class="login-role-option login-role-admin" onclick="showAdminLogin()">
+                <span class="login-role-icon"><i class="fa-solid fa-user-gear"></i></span><span class="login-role-copy">مدیر سیستم<small>ورود مدیر با رمز</small></span><i class="fa-solid fa-arrow-left login-role-arrow"></i>
+            </button>
         </div>
-        <div class="role-hint"><i class="fa-solid fa-circle-info"></i> پس از ورود، فقط کارشناسان مجاز همان تیم نمایش داده می‌شوند.</div>
-        <div id="loginError" role="alert" style="color: var(--bad); font-size: 12px; margin-bottom: 10px; display: none;">رمز عبور نامعتبر است.</div>
-        <button class="btn primary" id="loginSubmitBtn" onclick="doLogin()" style="width: 100%; justify-content: center; margin-bottom: 10px;">ورود به سیستم</button>
+        <div class="login-admin-panel" id="adminLoginPanel" style="display:none;">
+            <label for="loginPassInput">رمز مدیر سیستم</label>
+            <div class="login-field">
+                <input type="password" id="loginPassInput" autocomplete="current-password" aria-label="رمز مدیر سیستم" placeholder="رمز مدیر را وارد کنید" style="width:100%;padding:10px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;font-family:Vazirmatn;">
+                <button type="button" class="password-toggle" onclick="togglePasswordVisibility()" aria-label="نمایش یا مخفی‌کردن رمز مدیر" title="نمایش رمز"><i class="fa-solid fa-eye"></i></button>
+            </div>
+            <div id="loginError" role="alert" aria-live="polite" style="display:none;">رمز مدیر سیستم نادرست است.</div>
+            <div class="login-admin-actions">
+                <button type="button" class="btn primary" id="loginSubmitBtn" onclick="doLogin('admin')">ورود مدیر</button>
+                <button type="button" class="btn" onclick="hideAdminLogin()">بازگشت</button>
+            </div>
+        </div>
+        <p class="login-security-note"><i class="fa-solid fa-circle-info"></i> ورود تیم‌های QC بدون رمز است؛ انتخاب نقش فقط محدودهٔ نمایش پنل را تعیین می‌کند. مدیر سیستم همچنان رمز دارد.</p>
     </div>
 </div>
 
@@ -3216,11 +3264,12 @@
         if(analytics&&card) analytics.appendChild(card); // جدول لاگ در عرض کامل صفحه
     });
 
+    const ADMIN_PASSWORD = '7026';
     const ROLES = {
-        '1565': { id: 'tele_qc', label: 'کارشناس QC تیم تله‌سلز' },
-        '2056': { id: 'account_qc', label: 'کارشناس QC تیم اکانت' },
-        '8532': { id: 'mlm_bmpl_qc', label: 'کارشناس QC تیم MLM' },
-        '7026': { id: 'admin', label: 'مدیر سیستم' }
+        tele_qc: { id: 'tele_qc', label: 'کارشناس QC تیم تله‌سلز' },
+        account_qc: { id: 'account_qc', label: 'کارشناس QC تیم اکانت' },
+        mlm_bmpl_qc: { id: 'mlm_bmpl_qc', label: 'کارشناس QC تیم MLM' },
+        admin: { id: 'admin', label: 'مدیر سیستم' }
     };
     let sessionRole = null;
     let allCombinedDataset = [];
@@ -3331,13 +3380,32 @@
         icon.className = showing ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
     }
 
-    async function doLogin() {
+    function showAdminLogin() {
+        document.getElementById('loginRoleGrid').style.display = 'none';
+        document.getElementById('adminLoginPanel').style.display = 'block';
+        document.getElementById('loginError').style.display = 'none';
+        const input = document.getElementById('loginPassInput');
+        input.value = '';
+        input.removeAttribute('aria-invalid');
+        input.focus();
+    }
+
+    function hideAdminLogin() {
+        document.getElementById('adminLoginPanel').style.display = 'none';
+        document.getElementById('loginRoleGrid').style.display = 'grid';
+        document.getElementById('loginError').style.display = 'none';
+        const input = document.getElementById('loginPassInput');
+        input.value = '';
+        input.removeAttribute('aria-invalid');
+    }
+
+    async function doLogin(roleId) {
+        const roleDef = ROLES[roleId];
         const passInput = document.getElementById('loginPassInput');
-        const pass = passInput.value.trim();
-        const roleDef = ROLES[pass];
         const error = document.getElementById('loginError');
-        const submit = document.getElementById('loginSubmitBtn');
-        if (!roleDef) {
+        if (!roleDef) return;
+
+        if (roleDef.id === 'admin' && passInput.value.trim() !== ADMIN_PASSWORD) {
             error.style.display = 'block';
             passInput.setAttribute('aria-invalid', 'true');
             passInput.focus();
@@ -3345,23 +3413,33 @@
         }
         error.style.display = 'none';
         passInput.removeAttribute('aria-invalid');
-        submit.disabled = true;
-        submit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> در حال ورود...';
+
+        const controls = Array.from(document.querySelectorAll('#loginOverlay button'));
+        const activeButton = document.activeElement?.tagName === 'BUTTON'
+            ? document.activeElement
+            : document.getElementById('loginSubmitBtn');
+        const originalLabel = activeButton ? activeButton.innerHTML : '';
+        controls.forEach(button => { button.disabled = true; });
+        if (activeButton) activeButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> در حال ورود...';
         sessionRole = roleDef.id;
 
-        // رفع Race Condition: ابتدا اتصال/بازیابی کامل شود، سپس داشبورد ساخته شود.
-        if (!dirHandle) await tryReconnectFolder();
-        if (dirHandle) await loadRecovery();
+        try {
+            // ابتدا اتصال/بازیابی کامل شود، سپس داشبورد ساخته شود.
+            if (!dirHandle) await tryReconnectFolder();
+            if (dirHandle) await loadRecovery();
 
-        document.getElementById('loginOverlay').style.display = 'none';
-        const badge = document.getElementById('userRoleBadge');
-        badge.textContent = roleDef.label;
-        badge.style.display = 'inline-block';
-        document.getElementById('btnLogout').style.display = 'inline-flex';
-        // Every successful login starts on the upload/review page. Restored files wait for an explicit process click.
-        showUploadPage();
-        submit.disabled = false;
-        submit.innerHTML = 'ورود به سیستم';
+            document.getElementById('loginOverlay').style.display = 'none';
+            const badge = document.getElementById('userRoleBadge');
+            badge.textContent = roleDef.label;
+            badge.style.display = 'inline-block';
+            document.getElementById('btnLogout').style.display = 'inline-flex';
+            // Restored files wait on the upload page until an explicit process click.
+            showUploadPage();
+            passInput.value = '';
+        } finally {
+            controls.forEach(button => { button.disabled = false; });
+            if (activeButton) activeButton.innerHTML = originalLabel;
+        }
     }
 
     function doLogout() {
@@ -3369,8 +3447,8 @@
         location.reload();
     }
 
-    document.getElementById('loginPassInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') doLogin();
+    document.getElementById('loginPassInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') doLogin('admin');
     });
 
     // On startup, set up storage: reconnect to the previously chosen Desktop folder
