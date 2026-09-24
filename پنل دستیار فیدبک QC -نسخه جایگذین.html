@@ -245,9 +245,6 @@
         /* UX improvements */
         :focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
         .btn:disabled { opacity: .55; cursor: not-allowed; }
-        .login-field { position: relative; margin-bottom: 10px; }
-        .login-field input { margin-bottom: 0 !important; padding-left: 44px !important; }
-        .password-toggle { position:absolute; left:7px; top:50%; transform:translateY(-50%); border:0; background:transparent; color:var(--ink-soft); cursor:pointer; padding:8px; }
         .role-hint { background:rgba(56,189,248,.06); border:1px solid rgba(56,189,248,.18); border-radius:8px; padding:8px; margin:10px 0 14px; color:var(--ink-soft); font-size:11px; line-height:1.7; }
         @media (max-width: 1100px) {
             header.dashboard-header { align-items:flex-start; gap:10px; flex-direction:column; }
@@ -554,14 +551,9 @@
         .login-role-account { --role-color:var(--purple); }
         .login-role-mlm { --role-color:var(--gold); }
         .login-role-admin { --role-color:var(--brand); }
-        .login-admin-panel { margin:14px 0 10px; padding:13px; border:1px solid var(--line); border-radius:13px; background:var(--panel-soft); text-align:right; }
-        .login-admin-panel label { display:block; margin-bottom:6px; color:var(--ink-soft); font-size:11px; }
-        .login-admin-panel .login-field { margin-bottom:9px; }
-        .login-admin-panel #loginPassInput { margin:0; text-align:right; letter-spacing:1px; }
-        .login-admin-actions { display:flex; gap:8px; }
-        .login-admin-actions .btn { flex:1; justify-content:center; }
-        .login-security-note { margin-top:12px; color:var(--ink-soft); font-size:10px; line-height:1.8; }
-        #loginError { color:var(--bad); font-size:11px; margin:0 0 9px; }
+        .login-role-all { grid-column:1/-1; min-height:76px; border-color:color-mix(in srgb,var(--brand) 40%,var(--line)); background:linear-gradient(115deg,color-mix(in srgb,var(--brand) 10%,var(--panel-soft)),var(--panel-soft)); }
+        .login-role-all .login-role-icon { width:42px; height:42px; font-size:17px; }
+        .login-security-note { margin-top:12px; padding:8px 10px; border-radius:10px; background:color-mix(in srgb,var(--panel-soft) 78%,transparent); color:var(--ink-soft); font-size:10px; line-height:1.8; }
         @media (max-width:420px) { .login-role-grid { grid-template-columns:1fr; gap:7px; } .login-role-option { min-height:62px; } }
 
         @media (max-width:760px) {
@@ -796,33 +788,21 @@
         <div style="font-size: 38px; color: var(--brand); margin-bottom: 10px;"><i class="fa-solid fa-shield-halved"></i></div>
         <h2 style="font-size: 16px; margin-bottom: 5px; color: #fff;">ورود به پنل کنترل کیفیت</h2>
         <p style="color: var(--ink-soft); font-size: 12px; margin-bottom: 12px;">تیم یا سطح دسترسی را انتخاب کنید</p>
-        <div class="login-role-grid" id="loginRoleGrid" role="group" aria-label="انتخاب تیم یا سطح دسترسی">
+        <div class="login-role-grid" id="loginRoleGrid" role="group" aria-label="انتخاب محدوده اطلاعات">
+            <button type="button" class="login-role-option login-role-admin login-role-all" onclick="doLogin('admin')">
+                <span class="login-role-icon"><i class="fa-solid fa-layer-group"></i></span><span class="login-role-copy">نمایش همهٔ تیم‌ها<small>دسترسی مدیر سیستم؛ همهٔ داده‌های بارگذاری‌شده</small></span><i class="fa-solid fa-arrow-left login-role-arrow"></i>
+            </button>
             <button type="button" class="login-role-option login-role-tele" onclick="doLogin('tele_qc')">
-                <span class="login-role-icon"><i class="fa-solid fa-headset"></i></span><span class="login-role-copy">تله‌سلز<small>کارشناس QC تیم تله‌سلز</small></span><i class="fa-solid fa-arrow-left login-role-arrow"></i>
+                <span class="login-role-icon"><i class="fa-solid fa-headset"></i></span><span class="login-role-copy">تله‌سلز<small>فقط داده‌های تیم تله‌سلز</small></span><i class="fa-solid fa-arrow-left login-role-arrow"></i>
             </button>
             <button type="button" class="login-role-option login-role-account" onclick="doLogin('account_qc')">
-                <span class="login-role-icon"><i class="fa-solid fa-handshake"></i></span><span class="login-role-copy">اکانت<small>کارشناس QC تیم اکانت</small></span><i class="fa-solid fa-arrow-left login-role-arrow"></i>
+                <span class="login-role-icon"><i class="fa-solid fa-handshake"></i></span><span class="login-role-copy">اکانت<small>فقط داده‌های تیم اکانت</small></span><i class="fa-solid fa-arrow-left login-role-arrow"></i>
             </button>
             <button type="button" class="login-role-option login-role-mlm" onclick="doLogin('mlm_bmpl_qc')">
-                <span class="login-role-icon"><i class="fa-solid fa-network-wired"></i></span><span class="login-role-copy">MLM<small>کارشناس QC تیم MLM</small></span><i class="fa-solid fa-arrow-left login-role-arrow"></i>
-            </button>
-            <button type="button" class="login-role-option login-role-admin" onclick="showAdminLogin()">
-                <span class="login-role-icon"><i class="fa-solid fa-user-gear"></i></span><span class="login-role-copy">مدیر سیستم<small>ورود مدیر با رمز</small></span><i class="fa-solid fa-arrow-left login-role-arrow"></i>
+                <span class="login-role-icon"><i class="fa-solid fa-network-wired"></i></span><span class="login-role-copy">MLM<small>فقط داده‌های تیم MLM</small></span><i class="fa-solid fa-arrow-left login-role-arrow"></i>
             </button>
         </div>
-        <div class="login-admin-panel" id="adminLoginPanel" style="display:none;">
-            <label for="loginPassInput">رمز مدیر سیستم</label>
-            <div class="login-field">
-                <input type="password" id="loginPassInput" autocomplete="current-password" aria-label="رمز مدیر سیستم" placeholder="رمز مدیر را وارد کنید" style="width:100%;padding:10px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;font-family:Vazirmatn;">
-                <button type="button" class="password-toggle" onclick="togglePasswordVisibility()" aria-label="نمایش یا مخفی‌کردن رمز مدیر" title="نمایش رمز"><i class="fa-solid fa-eye"></i></button>
-            </div>
-            <div id="loginError" role="alert" aria-live="polite" style="display:none;">رمز مدیر سیستم نادرست است.</div>
-            <div class="login-admin-actions">
-                <button type="button" class="btn primary" id="loginSubmitBtn" onclick="doLogin('admin')">ورود مدیر</button>
-                <button type="button" class="btn" onclick="hideAdminLogin()">بازگشت</button>
-            </div>
-        </div>
-        <p class="login-security-note"><i class="fa-solid fa-circle-info"></i> ورود تیم‌های QC بدون رمز است؛ انتخاب نقش فقط محدودهٔ نمایش پنل را تعیین می‌کند. مدیر سیستم همچنان رمز دارد.</p>
+        <p class="login-security-note"><i class="fa-solid fa-circle-info"></i> همهٔ نقش‌ها بدون رمز وارد می‌شوند. برای مشاهدهٔ همهٔ اطلاعات، «نمایش همهٔ تیم‌ها» را انتخاب کنید؛ گزینه‌های تیمی فقط داده‌های همان تیم را نشان می‌دهند.</p>
     </div>
 </div>
 
@@ -3264,12 +3244,11 @@
         if(analytics&&card) analytics.appendChild(card); // جدول لاگ در عرض کامل صفحه
     });
 
-    const ADMIN_PASSWORD = '7026';
     const ROLES = {
         tele_qc: { id: 'tele_qc', label: 'کارشناس QC تیم تله‌سلز' },
         account_qc: { id: 'account_qc', label: 'کارشناس QC تیم اکانت' },
         mlm_bmpl_qc: { id: 'mlm_bmpl_qc', label: 'کارشناس QC تیم MLM' },
-        admin: { id: 'admin', label: 'مدیر سیستم' }
+        admin: { id: 'admin', label: 'مدیر سیستم — همه تیم‌ها' }
     };
     let sessionRole = null;
     let allCombinedDataset = [];
@@ -3372,52 +3351,12 @@
         setDisplay('btnInitFeedback', hasVisibleData && !mlmOnly);
     }
 
-    function togglePasswordVisibility() {
-        const input = document.getElementById('loginPassInput');
-        const icon = document.querySelector('.password-toggle i');
-        const showing = input.type === 'text';
-        input.type = showing ? 'password' : 'text';
-        icon.className = showing ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
-    }
-
-    function showAdminLogin() {
-        document.getElementById('loginRoleGrid').style.display = 'none';
-        document.getElementById('adminLoginPanel').style.display = 'block';
-        document.getElementById('loginError').style.display = 'none';
-        const input = document.getElementById('loginPassInput');
-        input.value = '';
-        input.removeAttribute('aria-invalid');
-        input.focus();
-    }
-
-    function hideAdminLogin() {
-        document.getElementById('adminLoginPanel').style.display = 'none';
-        document.getElementById('loginRoleGrid').style.display = 'grid';
-        document.getElementById('loginError').style.display = 'none';
-        const input = document.getElementById('loginPassInput');
-        input.value = '';
-        input.removeAttribute('aria-invalid');
-    }
-
     async function doLogin(roleId) {
         const roleDef = ROLES[roleId];
-        const passInput = document.getElementById('loginPassInput');
-        const error = document.getElementById('loginError');
         if (!roleDef) return;
 
-        if (roleDef.id === 'admin' && passInput.value.trim() !== ADMIN_PASSWORD) {
-            error.style.display = 'block';
-            passInput.setAttribute('aria-invalid', 'true');
-            passInput.focus();
-            return;
-        }
-        error.style.display = 'none';
-        passInput.removeAttribute('aria-invalid');
-
         const controls = Array.from(document.querySelectorAll('#loginOverlay button'));
-        const activeButton = document.activeElement?.tagName === 'BUTTON'
-            ? document.activeElement
-            : document.getElementById('loginSubmitBtn');
+        const activeButton = document.activeElement?.tagName === 'BUTTON' ? document.activeElement : null;
         const originalLabel = activeButton ? activeButton.innerHTML : '';
         controls.forEach(button => { button.disabled = true; });
         if (activeButton) activeButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> در حال ورود...';
@@ -3435,7 +3374,6 @@
             document.getElementById('btnLogout').style.display = 'inline-flex';
             // Restored files wait on the upload page until an explicit process click.
             showUploadPage();
-            passInput.value = '';
         } finally {
             controls.forEach(button => { button.disabled = false; });
             if (activeButton) activeButton.innerHTML = originalLabel;
@@ -3446,10 +3384,6 @@
         sessionRole = null;
         location.reload();
     }
-
-    document.getElementById('loginPassInput').addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') doLogin('admin');
-    });
 
     // On startup, set up storage: reconnect to the previously chosen Desktop folder
     // (or enable manual save/restore on unsupported browsers).
