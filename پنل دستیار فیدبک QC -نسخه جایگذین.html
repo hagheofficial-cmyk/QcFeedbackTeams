@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سیستم ارشد پایش دپارتمان تله‌سلز، اکانت و MLM بیمه‌بازار</title>
+    <title>دستیار فیدبک شرکای بیمه بازار</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -796,7 +796,7 @@
 <div class="container">
     <header class="dashboard-header">
         <div>
-            <h1><i class="fa-solid fa-burst" style="color: var(--brand);"></i> سیستم تخصصی پایش سه‌گانه تله‌سلز، اکانت و MLM (بیمه‌بازار)</h1>
+            <h1><i class="fa-solid fa-burst" style="color: var(--brand);"></i> دستیار فیدبک شرکای بیمه بازار</h1>
             <p style="color: var(--ink-soft); font-size:11.5px; margin-top:2px;">محاسبه واقعی میانگین سه فرم، تفکیک مستقل المان‌ها و خطوط قرمز هر تیم</p>
         </div>
         <div class="header-actions">
@@ -852,7 +852,7 @@
     </div>
     
     <div style="text-align: center; display: none;" id="processButtonContainer">
-        <button class="btn gold" style="padding: 12px 40px; font-size: 14px;" onclick="compileAndRenderDashboard()"><i class="fa-solid fa-calculator"></i> دریافت و نمایش داده‌ها</button>
+        <button class="btn gold" style="padding: 12px 40px; font-size: 14px;" onclick="processAndRenderDashboard()"><i class="fa-solid fa-calculator"></i> دریافت و نمایش داده‌ها</button>
     </div>
 
     <div id="dashboardWorkspace" style="display: none; flex-direction: column; gap: 15px;">
@@ -1049,12 +1049,13 @@
                             <h2 style="color: var(--gold);"><i class="fa-solid fa-microphone-lines"></i> فایل‌های صوتی (ویس) شنود کارشناس</h2>
                         </div>
                         <div style="font-size:11.5px; color: var(--ink-soft); margin-bottom:10px;">
-                            ویس‌های هر کارشناس در پوشه‌ی مخصوص خودش روی دیسک ذخیره می‌شوند. می‌توانید چند فایل صوتی به‌همراه توضیحات آپلود کنید و همین‌جا پخش‌شان کنید.
+                            برای هر کارشناس پوشه‌ی جداگانه‌ی <code>voices/نام کارشناس</code> ساخته می‌شود. فایل‌های صوتی را می‌توانید مستقیم داخل همان پوشه کپی کنید؛ سپس «بازخوانی پوشه» را بزنید تا در پنل فهرست، پخش و به لیدها متصل شوند. همچنین می‌توانید چند فایل را همراه توضیحات، از همین پنل آپلود کنید.
                         </div>
                         <div class="action-form" style="display:flex; flex-direction:column; gap:8px; align-items:stretch;">
                             <input type="file" id="voiceFileInput" accept="audio/*" multiple style="display:none;" onchange="handleVoiceFilesSelected(event)">
                             <textarea id="voiceNoteInput" placeholder="توضیحات این ویس (مثلاً: تماس لید X - نمونه ضعف در مدیریت اعتراض)..." style="width:100%; min-height:48px; background: var(--bg); color:#fff; border:1px solid var(--line); border-radius:6px; padding:8px; font-size:12px; resize:vertical; font-family:'Vazirmatn', sans-serif;"></textarea>
                             <button class="btn gold" id="btnPickVoice" onclick="document.getElementById('voiceFileInput').click()"><i class="fa-solid fa-file-audio"></i> انتخاب و آپلود فایل صوتی</button>
+                            <button class="btn" id="btnRefreshExpertVoices" onclick="refreshCurrentExpertVoices()"><i class="fa-solid fa-rotate"></i> بازخوانی پوشه‌ی صوتی این کارشناس</button>
                             <div id="voiceUploadStatus" style="font-size:11px; color: var(--ink-soft);"></div>
                         </div>
                         <div id="voiceListContainer" style="margin-top:12px; display:flex; flex-direction:column; gap:10px;"></div>
@@ -1304,6 +1305,7 @@
             setStorageBadge('پوشه دیتا: متصل', true);
             document.getElementById('btnConnectFolder').innerHTML = '<i class="fa-solid fa-folder-open"></i> پوشه دیتا متصل است';
             await loadRecovery();           // read existing data back from the folder
+            await ensureExpertVoiceFolders(); // create and scan voices/<expert-name> folders
             if (sessionRole) showUploadPage();
             await saveRecovery();           // ensure recovery.json exists
         } catch (e) {
@@ -1323,6 +1325,7 @@
                     setStorageBadge('پوشه دیتا: متصل', true);
                     document.getElementById('btnConnectFolder').innerHTML = '<i class="fa-solid fa-folder-open"></i> پوشه دیتا متصل است';
                     await loadRecovery();
+                    await ensureExpertVoiceFolders();
                 } else {
                     setStorageBadge('پوشه دیتا: نیاز به تأیید مجدد', false);
                 }
@@ -1350,6 +1353,104 @@
         const root = await getVoicesRoot(create);
         if (!root) return null;
         return await root.getDirectoryHandle(safeFolderName(expertName), { create: !!create });
+    }
+
+    // Audio files may be copied directly into voices/<expert-name> by the user.
+    // These extensions cover the common call-recording formats; MIME detection
+    // also accepts formats whose extension is not listed here.
+    const AUDIO_FILE_EXTENSION = /\.(?:mp3|wav|m4a|aac|ogg|oga|opus|flac|webm|wma|aiff?|amr|3gp|mp4)$/i;
+    let voiceFolderSyncPromise = Promise.resolve();
+
+    function expertNamesFromEvaluationData() {
+        const names = new Set();
+        [teleRawData, accRawData, mlmRawData].forEach(rows => {
+            (Array.isArray(rows) ? rows : []).forEach(row => {
+                const name = String(row && row.expertName || '').trim();
+                if (name) names.add(name);
+            });
+        });
+        return Array.from(names).sort((a, b) => a.localeCompare(b, 'fa'));
+    }
+
+    function isVoiceAudioFile(fileName, mimeType) {
+        return /^audio\//i.test(String(mimeType || '')) || AUDIO_FILE_EXTENSION.test(String(fileName || ''));
+    }
+
+    function diskVoiceId(fileName) {
+        // Stable, quote-safe IDs are needed for manually copied file names.
+        let hash = 2166136261;
+        for (const character of String(fileName || '')) {
+            hash ^= character.codePointAt(0);
+            hash = Math.imul(hash, 16777619);
+        }
+        return `disk_${(hash >>> 0).toString(36)}`;
+    }
+
+    async function syncExpertVoiceFiles(expertName, createFolder = false) {
+        if (!dirHandle || !String(expertName || '').trim()) return false;
+        const dir = await getExpertVoiceDir(expertName, createFolder);
+        if (!dir) return false;
+
+        const existingRaw = voiceMeta[expertName];
+        const existing = Array.isArray(existingRaw) ? existingRaw : [];
+        const knownFileNames = new Set(existing.filter(item => item && item.fileName).map(item => String(item.fileName)));
+        const filesOnDisk = [];
+        for await (const [fileName, entryHandle] of dir.entries()) {
+            if (entryHandle.kind !== 'file') continue;
+            try {
+                const file = await entryHandle.getFile();
+                if (isVoiceAudioFile(fileName, file.type) || knownFileNames.has(fileName)) {
+                    filesOnDisk.push({ fileName, file });
+                }
+            } catch (e) {
+                console.warn('Could not inspect voice file', fileName, e);
+            }
+        }
+        filesOnDisk.sort((a, b) => a.fileName.localeCompare(b.fileName));
+
+        const existingByFileName = new Map(existing.filter(item => item && item.fileName).map(item => [String(item.fileName), item]));
+        const next = filesOnDisk.map(({ fileName, file }) => existingByFileName.get(fileName) || ({
+            id: diskVoiceId(fileName),
+            fileName: fileName,
+            originalName: fileName,
+            note: '',
+            date: file.lastModified ? new Date(file.lastModified).toLocaleDateString('fa-IR') : '',
+            mime: file.type || 'audio/mpeg'
+        }));
+        const filesOnDiskSet = new Set(filesOnDisk.map(item => item.fileName));
+        const changed = (!Array.isArray(existingRaw) && existingRaw != null) ||
+            next.length !== existing.length ||
+            next.some(item => !existingByFileName.has(item.fileName)) ||
+            existing.some(item => !item || !item.fileName || !filesOnDiskSet.has(String(item.fileName)));
+
+        if (changed) voiceMeta[expertName] = next;
+        return changed;
+    }
+
+    function ensureExpertVoiceFolders() {
+        if (!dirHandle) return Promise.resolve(false);
+        const syncTask = async () => {
+            try {
+                const experts = expertNamesFromEvaluationData();
+                if (!experts.length) return false;
+                const root = await getVoicesRoot(true);
+                if (!root) return false;
+
+                let voiceMetadataChanged = false;
+                for (const expertName of experts) {
+                    await root.getDirectoryHandle(safeFolderName(expertName), { create: true });
+                    if (await syncExpertVoiceFiles(expertName, false)) voiceMetadataChanged = true;
+                }
+                if (voiceMetadataChanged) await saveRecovery();
+                return true;
+            } catch (e) {
+                console.warn('Could not create or scan expert voice folders', e);
+                return false;
+            }
+        };
+        const pending = voiceFolderSyncPromise.then(syncTask, syncTask);
+        voiceFolderSyncPromise = pending.then(() => undefined, () => undefined);
+        return pending;
     }
 
     // ---- recovery.json read/write ----
@@ -1433,6 +1534,36 @@
     function currentExpertName() {
         if (isPresentationModeActive) return presentationTargetExpert;
         return document.getElementById('expertSelect').value;
+    }
+
+    async function refreshCurrentExpertVoices() {
+        const expertName = currentExpertName();
+        const statusEl = document.getElementById('voiceUploadStatus');
+        const button = document.getElementById('btnRefreshExpertVoices');
+        if (!expertName) {
+            if (statusEl) statusEl.textContent = 'ابتدا یک کارشناس را انتخاب کنید.';
+            return;
+        }
+        if (!dirHandle) {
+            if (statusEl) statusEl.textContent = 'ابتدا پوشه‌ی دیتا را وصل کنید.';
+            return;
+        }
+
+        if (button) button.disabled = true;
+        if (statusEl) statusEl.textContent = 'در حال بازخوانی پوشه‌ی صوتی...';
+        try {
+            const changed = await syncExpertVoiceFiles(expertName, true);
+            if (changed) await saveRecovery();
+            await renderVoiceList(expertName);
+            applyFilteringPipeline();
+            const count = (voiceMeta[expertName] || []).length;
+            if (statusEl) statusEl.textContent = `${count.toLocaleString('fa-IR')} فایل صوتی در پوشه‌ی «${safeFolderName(expertName)}» پیدا شد.`;
+        } catch (e) {
+            console.warn('Could not refresh expert voice folder', e);
+            if (statusEl) statusEl.textContent = 'خواندن پوشه‌ی صوتی انجام نشد؛ اتصال پوشه را بررسی کنید.';
+        } finally {
+            if (button) button.disabled = false;
+        }
     }
 
     async function handleVoiceFilesSelected(ev) {
@@ -1524,26 +1655,38 @@
     async function renderVoiceList(expertName) {
         const cont = document.getElementById('voiceListContainer');
         if (!cont) return;
-        const list = (voiceMeta[expertName] || []);
         if (!expertName) { cont.innerHTML = '<div style="color:var(--ink-soft); font-size:12px;">یک کارشناس را انتخاب کنید.</div>'; return; }
-        if (!list.length) { cont.innerHTML = '<div style="color:var(--ink-soft); font-size:12px;">هنوز فایل صوتی برای این کارشناس ثبت نشده است.</div>'; return; }
+        const list = (voiceMeta[expertName] || []);
+        if (!list.length) {
+            cont.innerHTML = '<div style="color:var(--ink-soft); font-size:12px;">هنوز فایل صوتی ثبت نشده است؛ فایل را در پوشه‌ی این کارشناس قرار دهید و «بازخوانی پوشه» را بزنید.</div>';
+            return;
+        }
 
-        cont.innerHTML = list.map(v => `
-            <div class="voice-row" style="background:#0b111e; border:1px solid var(--line); border-radius:8px; padding:10px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px;">
-                    <div style="font-size:12px; color:#fff; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-                        <i class="fa-solid fa-file-audio" style="color:var(--gold);"></i> ${v.originalName || v.fileName}
+        const expertArg = escapeAttr(JSON.stringify(String(expertName)));
+        cont.innerHTML = list.map(v => {
+            const fileName = String(v.fileName || '');
+            const visibleName = escapeAttr(v.originalName || fileName);
+            const date = escapeAttr(v.date || '');
+            const note = escapeAttr(v.note || '');
+            const fileArg = escapeAttr(JSON.stringify(fileName));
+            const idArg = escapeAttr(JSON.stringify(String(v.id || '')));
+            return `
+                <div class="voice-row" style="background:#0b111e; border:1px solid var(--line); border-radius:8px; padding:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px;">
+                        <div style="font-size:12px; color:#fff; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                            <i class="fa-solid fa-file-audio" style="color:var(--gold);"></i> ${visibleName}
+                        </div>
+                        <small style="color:var(--ink-soft); white-space:nowrap;">${date}</small>
                     </div>
-                    <small style="color:var(--ink-soft); white-space:nowrap;">${v.date || ''}</small>
+                    ${note ? `<div style="font-size:11.5px; color:var(--ink); background:rgba(245,158,11,0.06); border:1px dashed var(--warn); border-radius:6px; padding:6px; margin-bottom:8px; line-height:1.6;"><i class="fa-solid fa-comment-dots"></i> ${note}</div>` : ''}
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <button class="btn gold" style="padding:4px 10px; font-size:11px;" onclick="playVoice(${expertArg}, ${fileArg}, this)"><i class="fa-solid fa-play"></i> پخش</button>
+                        <audio controls preload="none" style="height:32px; flex:1; min-width:0;"></audio>
+                        <button class="btn danger" style="padding:4px 8px; font-size:10px;" onclick="deleteVoice(${expertArg}, ${idArg})">حذف</button>
+                    </div>
                 </div>
-                ${v.note ? `<div style="font-size:11.5px; color:var(--ink); background:rgba(245,158,11,0.06); border:1px dashed var(--warn); border-radius:6px; padding:6px; margin-bottom:8px; line-height:1.6;"><i class="fa-solid fa-comment-dots"></i> ${v.note}</div>` : ''}
-                <div style="display:flex; gap:8px; align-items:center;">
-                    <button class="btn gold" style="padding:4px 10px; font-size:11px;" onclick="playVoice(decodeURIComponent('${encodeURIComponent(expertName)}'), '${v.fileName}', this)"><i class="fa-solid fa-play"></i> پخش</button>
-                    <audio controls preload="none" style="height:32px; flex:1; min-width:0;"></audio>
-                    <button class="btn danger" style="padding:4px 8px; font-size:10px;" onclick="deleteVoice(decodeURIComponent('${encodeURIComponent(expertName)}'), '${v.id}')">حذف</button>
-                </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     // TELE FILE LOADER
@@ -1558,6 +1701,7 @@
             teleRawData = parseRows(rows, 'tele');
             document.getElementById('teleStatusText').innerHTML = `<span style="color:var(--good);"><i class="fa-solid fa-check-double"></i> ${teleRawData.length} رکورد بارگذاری شد</span>`;
             checkUploadCompletion();
+            ensureExpertVoiceFolders();
         };
         reader.readAsArrayBuffer(file);
     });
@@ -1574,6 +1718,7 @@
             accRawData = parseRows(rows, 'account');
             document.getElementById('accStatusText').innerHTML = `<span style="color:var(--purple);"><i class="fa-solid fa-check-double"></i> ${accRawData.length} رکورد بارگذاری شد</span>`;
             checkUploadCompletion();
+            ensureExpertVoiceFolders();
         };
         reader.readAsArrayBuffer(file);
     });
@@ -1590,6 +1735,7 @@
             mlmRawData = parseRows(rows, 'mlm');
             document.getElementById('mlmStatusText').innerHTML = `<span style="color:var(--gold);"><i class="fa-solid fa-check-double"></i> ${mlmRawData.length} رکورد بارگذاری شد</span>`;
             checkUploadCompletion();
+            ensureExpertVoiceFolders();
         };
         reader.readAsArrayBuffer(file);
     });
@@ -1811,6 +1957,12 @@
         document.getElementById('presentationBanner').style.display = 'none';
         await saveRecovery();
         showUploadPage();
+    }
+
+    // Scan newly copied audio first, then run the existing synchronous render path.
+    async function processAndRenderDashboard() {
+        await ensureExpertVoiceFolders();
+        compileAndRenderDashboard();
     }
 
     // COMPILE AND PREPARE INTERFACE
@@ -2288,7 +2440,7 @@
 
             tr.innerHTML = `
                 <td><code>${r.leadName}</code></td>
-                <td><div class="lead-voice-wrap" style="display:flex;align-items:center;gap:6px;"><code>${r.leadPhone}</code>${sessionRole === 'mlm_bmpl_qc' ? '' : (linkedVoice ? `<button class="btn success" style="padding:4px 7px;border-radius:50%;" title="پخش ویس این لید" onclick="event.stopPropagation();playVoice(decodeURIComponent('${encodeURIComponent(r.expertName)}'),'${linkedVoice.fileName}',this)"><i class="fa-solid fa-play"></i></button><audio preload="none" controls style="height:28px;width:120px;"></audio>` : `<button class="btn" disabled style="padding:4px 7px;border-radius:50%;" title="ویس منطبق با این شماره پیدا نشد"><i class="fa-solid fa-play"></i></button>`)}</div></td>
+                <td><div class="lead-voice-wrap" style="display:flex;align-items:center;gap:6px;"><code>${r.leadPhone}</code>${sessionRole === 'mlm_bmpl_qc' ? '' : (linkedVoice ? `<button class="btn success" style="padding:4px 7px;border-radius:50%;" title="پخش ویس این لید" onclick="event.stopPropagation();playVoice(${escapeAttr(JSON.stringify(String(r.expertName)))},${escapeAttr(JSON.stringify(String(linkedVoice.fileName)))},this)"><i class="fa-solid fa-play"></i></button><audio preload="none" controls style="height:28px;width:120px;"></audio>` : `<button class="btn" disabled style="padding:4px 7px;border-radius:50%;" title="ویس منطبق با این شماره پیدا نشد"><i class="fa-solid fa-play"></i></button>`)}</div></td>
                 <td><span class="badge" style="background:${r.formType==='tele'?'var(--good-soft)':(r.formType==='mlm'?'var(--warn-soft)':'var(--purple)')}">${r.formType==='tele'?'لید تله‌سلز':(r.formType==='mlm'?'لید MLM':'لید اکانت')}</span></td>
                 <td><b style="color:#fff;">${r.score}</b></td>
                 <td>${r.redline === 1 ? '<span class="badge bad">نقض خط قرمز</span>':'<span class="badge good">پاس شده</span>'}</td>
