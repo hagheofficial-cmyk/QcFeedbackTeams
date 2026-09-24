@@ -272,8 +272,8 @@
             <div style="flex:1;">
                 <h3 style="color: var(--brand); font-size: 15px; margin-bottom: 8px;"><i class="fa-solid fa-print"></i> پیش‌نمایش صورت‌جلسه</h3>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
-                    <label style="font-size:11px; color:var(--ink-soft);">عنوان/ماه کارنامه
-                        <input id="mReportPeriodInput" type="text" placeholder="مثلاً مرداد" oninput="syncMinutesEditableFields()" style="display:block; width:100%; margin-top:4px; background:var(--bg); color:#fff; border:1px solid var(--brand); border-radius:6px; padding:7px; font-family:Vazirmatn;">
+                    <label style="font-size:11px; color:var(--ink-soft);">عنوان/بازه تاریخ ثبت کارنامه
+                        <input id="mReportPeriodInput" type="text" placeholder="مثلاً ۱۰ تا ۲۰ شهریور ۱۴۰۵" oninput="syncMinutesEditableFields()" style="display:block; width:100%; margin-top:4px; background:var(--bg); color:#fff; border:1px solid var(--brand); border-radius:6px; padding:7px; font-family:Vazirmatn;">
                     </label>
                     <label style="font-size:11px; color:var(--ink-soft);">نمره ماه قبل (اختیاری)
                         <input id="mPreviousScoreInput" type="number" min="0" max="100" step="0.1" placeholder="مثلاً ۸۷.۵" oninput="syncMinutesEditableFields()" style="display:block; width:100%; margin-top:4px; background:var(--bg); color:#fff; border:1px solid var(--line); border-radius:6px; padding:7px; font-family:Vazirmatn;">
@@ -304,7 +304,7 @@
                 <tr>
                     <td style="padding: 8px; border: 1px solid var(--line); background: #0b111e; font-weight: bold; width: 15%; color: var(--brand);">نام کارشناس:</td>
                     <td style="padding: 8px; border: 1px solid var(--line); width: 35%; font-weight: bold; color: #fff;" id="mExpertName">-</td>
-                    <td style="padding: 8px; border: 1px solid var(--line); background: #0b111e; font-weight: bold; width: 20%; color: var(--brand);">میانگین ترکیبی نهایی:</td>
+                    <td style="padding: 8px; border: 1px solid var(--line); background: #0b111e; font-weight: bold; width: 20%; color: var(--brand);" id="mCombinedScoreLabel">میانگین ترکیبی نهایی:</td>
                     <td style="padding: 8px; border: 1px solid var(--line); width: 30%; font-weight: bold; color: var(--brand);" id="mCombinedScore">-</td>
                 </tr>
                 <tr id="mTeamScoresRow">
@@ -594,7 +594,7 @@
         <div class="tabs-nav">
             <button class="tab-btn active" onclick="switchTab('analyticsTab', this)"><i class="fa-solid fa-user-gear"></i> آنالیز پیشرفته و عارضه‌‌یابی ریز جزئیات</button>
             <button class="tab-btn" id="tabBtnLeaderboard" onclick="switchTab('leaderboardTab', this)"><i class="fa-solid fa-trophy"></i> جدول مقایسه توازن کل تیم</button>
-            <button class="tab-btn" onclick="switchTab('matrixTab', this)"><i class="fa-solid fa-border-all"></i> ماتریس خطای المان‌ها</button>
+            <button class="tab-btn" id="tabBtnMatrix" onclick="switchTab('matrixTab', this)"><i class="fa-solid fa-border-all"></i> ماتریس خطای المان‌ها</button>
         </div>
 
         <div id="analyticsTab" class="tab-content active">
@@ -604,24 +604,24 @@
                     
                     <div class="card">
                         <div class="card-header">
-                            <h2><i class="fa-solid fa-code-compare" style="color: var(--gold);"></i> موازنه مهارت کارشناس (مقایسه فرم‌های تله، اکانت و MLM)</h2>
+                            <h2 id="comparisonAnalysisTitle"><i class="fa-solid fa-code-compare" style="color: var(--gold);"></i> موازنه مهارت کارشناس (مقایسه فرم‌های تله، اکانت و MLM)</h2>
                             <span id="comparisonStatusBadge" class="badge">درحال تحلیل...</span>
                         </div>
                         
                         <div class="comparison-holder">
-                            <div class="comp-box" style="border-right: 3px solid var(--good);">
+                            <div class="comp-box" id="comparisonTeleBox" style="border-right: 3px solid var(--good);">
                                 <div class="comp-title" style="color: var(--good);"><i class="fa-solid fa-phone"></i> نمره و جزئیات تله‌سلز</div>
                                 <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>میانگین نمره لید تله:</span><b id="cTeleAvg">0%</b></div>
                                 <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>تعداد تماس ارزیابی شده:</span><b id="cTeleCount">۰ تماس</b></div>
                                 <div style="display:flex; justify-content:space-between;"><span>موارد ردلاین تله:</span><b id="cTeleRed" style="color:var(--bad);">۰ مورد</b></div>
                             </div>
-                            <div class="comp-box" style="border-right: 3px solid var(--purple);">
+                            <div class="comp-box" id="comparisonAccountBox" style="border-right: 3px solid var(--purple);">
                                 <div class="comp-title" style="color: var(--purple);"><i class="fa-solid fa-user-check"></i> نمره و جزئیات اکانت</div>
                                 <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>میانگین نمره لید اکانت:</span><b id="cAccAvg">0%</b></div>
                                 <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>تعداد تماس ارزیابی شده:</span><b id="cAccCount">۰ تماس</b></div>
                                 <div style="display:flex; justify-content:space-between;"><span>موارد ردلاین اکانت:</span><b id="cAccRed" style="color:var(--bad);">۰ مورد</b></div>
                             </div>
-                            <div class="comp-box" style="border-right: 3px solid var(--gold);">
+                            <div class="comp-box" id="comparisonMlmBox" style="border-right: 3px solid var(--gold);">
                                 <div class="comp-title" style="color: var(--gold);"><i class="fa-solid fa-network-wired"></i> نمره و جزئیات MLM</div>
                                 <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>میانگین نمره لید MLM:</span><b id="cMlmAvg">0%</b></div>
                                 <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>تعداد تماس ارزیابی شده:</span><b id="cMlmCount">۰ تماس</b></div>
@@ -636,22 +636,22 @@
 
                     <div class="card">
                         <div class="card-header">
-                            <h2><i class="fa-solid fa-bullseye" style="color: var(--brand);"></i> نمودار عنکبوتی (رادار) تحلیل المان‌های هر فرم</h2>
+                            <h2 id="radarAnalysisTitle"><i class="fa-solid fa-bullseye" style="color: var(--brand);"></i> نمودار عنکبوتی (رادار) تحلیل المان‌های هر فرم</h2>
                         </div>
                         <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:15px;">
-                            <div>
+                            <div id="teleRadarPanel">
                                 <h3 style="color:var(--good); font-size:12.5px; margin-bottom:8px; text-align:center;"><i class="fa-solid fa-phone"></i> فرم تله‌سلز</h3>
                                 <div style="position:relative; height:280px;">
                                     <canvas id="teleRadarChart"></canvas>
                                 </div>
                             </div>
-                            <div>
+                            <div id="accountRadarPanel">
                                 <h3 style="color:var(--purple); font-size:12.5px; margin-bottom:8px; text-align:center;"><i class="fa-solid fa-handshake"></i> فرم اکانت</h3>
                                 <div style="position:relative; height:280px;">
                                     <canvas id="accRadarChart"></canvas>
                                 </div>
                             </div>
-                            <div>
+                            <div id="mlmRadarPanel">
                                 <h3 style="color:var(--gold); font-size:12.5px; margin-bottom:8px; text-align:center;"><i class="fa-solid fa-network-wired"></i> فرم MLM</h3>
                                 <div style="position:relative; height:280px;">
                                     <canvas id="mlmRadarChart"></canvas>
@@ -662,18 +662,18 @@
 
                     <div class="card">
                         <div class="card-header">
-                            <h2><i class="fa-solid fa-chart-bar" style="color: var(--brand);"></i> ریز درصد تحقق موفقیت هر المان به تفکیک فرم تماس</h2>
+                            <h2 id="criteriaBreakdownTitle"><i class="fa-solid fa-chart-bar" style="color: var(--brand);"></i> ریز درصد تحقق موفقیت هر المان به تفکیک فرم تماس</h2>
                         </div>
                         <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:15px;">
-                            <div>
+                            <div id="teleBreakdownPanel">
                                 <h3 style="color:var(--good); font-size:12.5px; margin-bottom:8px; border-bottom:1px solid var(--line); padding-bottom:3px;"><i class="fa-solid fa-phone"></i> درصد المان‌های تله‌سلز</h3>
                                 <div id="teleCriteriaBreakdownContainer" style="display:flex; flex-direction:column; gap:5px; max-height:300px; overflow-y:auto;"></div>
                             </div>
-                            <div>
+                            <div id="accountBreakdownPanel">
                                 <h3 style="color:var(--purple); font-size:12.5px; margin-bottom:8px; border-bottom:1px solid var(--line); padding-bottom:3px;"><i class="fa-solid fa-handshake"></i> درصد المان‌های اکانت</h3>
                                 <div id="accCriteriaBreakdownContainer" style="display:flex; flex-direction:column; gap:5px; max-height:300px; overflow-y:auto;"></div>
                             </div>
-                            <div>
+                            <div id="mlmBreakdownPanel">
                                 <h3 style="color:var(--gold); font-size:12.5px; margin-bottom:8px; border-bottom:1px solid var(--line); padding-bottom:3px;"><i class="fa-solid fa-network-wired"></i> درصد المان‌های MLM</h3>
                                 <div id="mlmCriteriaBreakdownContainer" style="display:flex; flex-direction:column; gap:5px; max-height:300px; overflow-y:auto;"></div>
                             </div>
@@ -764,7 +764,7 @@
         <div id="leaderboardTab" class="tab-content">
             <div class="card">
                 <div class="card-header">
-                    <h2><i class="fa-solid fa-ranking-star" style="color: var(--brand);"></i> جدول رتبه‌بندی نهایی کل کارشناسان بر اساس میانگین واقعی هر سه فرم (تله‌سلز، اکانت و MLM)</h2>
+                    <h2 id="leaderboardTitle"><i class="fa-solid fa-ranking-star" style="color: var(--brand);"></i> جدول رتبه‌بندی نهایی کل کارشناسان بر اساس میانگین واقعی هر سه فرم (تله‌سلز، اکانت و MLM)</h2>
                 </div>
                 <div class="table-responsive">
                     <table>
@@ -772,13 +772,13 @@
                             <tr>
                                 <th>رتبه</th>
                                 <th>نام کارشناس</th>
-                                <th>میانگین ترکیبی نهایی</th>
-                                <th>میانگین لید تله‌سلز</th>
-                                <th>میانگین لید اکانت</th>
-                                <th>میانگین MLM</th>
-                                <th>تعداد کل ارزیابی‌ها</th>
+                                <th id="leaderboardCombinedHeader">میانگین ترکیبی نهایی</th>
+                                <th class="leaderboard-tele-col">میانگین لید تله‌سلز</th>
+                                <th class="leaderboard-account-col">میانگین لید اکانت</th>
+                                <th class="leaderboard-mlm-col">میانگین MLM</th>
+                                <th id="leaderboardCountHeader">تعداد کل ارزیابی‌ها</th>
                                 <th>کل ردلاین‌ها</th>
-                                <th>وضعیت توازن</th>
+                                <th class="leaderboard-balance-col">وضعیت توازن</th>
                             </tr>
                         </thead>
                         <tbody id="leaderboardTableBody"></tbody>
@@ -788,19 +788,19 @@
         </div>
 
         <div id="matrixTab" class="tab-content">
-            <div class="card">
+            <div class="card" id="teleMatrixCard">
                 <div class="card-header">
                     <h2><i class="fa-solid fa-border-all" style="color: var(--good);"></i> ماتریس درصد خطای المان‌های تله‌سلز ( نسبت کسر امتیاز صفر )</h2>
                 </div>
                 <div class="heatmap-scroll"><table class="heatmap-table" id="teleErrorMatrixTable"></table></div>
             </div>
-            <div class="card">
+            <div class="card" id="accountMatrixCard">
                 <div class="card-header">
                     <h2><i class="fa-solid fa-border-all" style="color: var(--purple);"></i> ماتریس درصد خطای المان‌های اکانت ( نسبت کسر امتیاز صفر )</h2>
                 </div>
                 <div class="heatmap-scroll"><table class="heatmap-table" id="accErrorMatrixTable"></table></div>
             </div>
-            <div class="card">
+            <div class="card" id="mlmMatrixCard">
                 <div class="card-header">
                     <h2><i class="fa-solid fa-border-all" style="color: var(--gold);"></i> ماتریس درصد خطای المان‌های MLM ( نسبت کسر امتیاز صفر )</h2>
                 </div>
@@ -891,18 +891,53 @@
         return isNaN(parsed) ? 0 : parsed;
     }
 
-    function formatDateDisplay(val) {
-        if (!val || val === 'نامشخص') return 'نامشخص';
-        if (val instanceof Date) return val.toLocaleDateString('fa-IR');
-        let s = String(val).trim();
-        if (/^\d+(\.\d+)?$/.test(s)) {
-            let num = parseFloat(s);
-            if (num > 30000 && num < 60000) {
-                let d = new Date((num - 25569) * 86400 * 1000);
-                return d.toLocaleDateString('fa-IR');
+    function parseDateValue(value) {
+        if (!value || value === 'نامشخص') return null;
+        if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value;
+        if (typeof value === 'number' || /^\d+(\.\d+)?$/.test(String(value).trim())) {
+            const serial = Number(value);
+            if (serial > 30000 && serial < 60000) {
+                const date = new Date((serial - 25569) * 86400 * 1000);
+                return Number.isNaN(date.getTime()) ? null : date;
             }
         }
-        return s.length > 10 ? s.substring(0, 10) : s;
+        const text = String(value).trim();
+        const englishDate = text.match(/^([A-Za-z]+)\s+(\d{1,2}),\s*(\d{4})(?:,?\s*(\d{1,2}):(\d{2})\s*(AM|PM))?$/i);
+        if (englishDate) {
+            const monthIndex = ['january','february','march','april','may','june','july','august','september','october','november','december'].indexOf(englishDate[1].toLowerCase());
+            if (monthIndex >= 0) {
+                let hour = Number(englishDate[4] || 0);
+                const minute = Number(englishDate[5] || 0);
+                if (englishDate[6]) hour = (hour % 12) + (englishDate[6].toUpperCase() === 'PM' ? 12 : 0);
+                const date = new Date(Number(englishDate[3]), monthIndex, Number(englishDate[2]), hour, minute);
+                return Number.isNaN(date.getTime()) ? null : date;
+            }
+        }
+        // Treat ISO date-only values as local calendar dates to avoid a UTC day shift.
+        const isoDate = text.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?:$|[T\s])/);
+        if (isoDate) {
+            const date = new Date(Number(isoDate[1]), Number(isoDate[2]) - 1, Number(isoDate[3]));
+            return Number.isNaN(date.getTime()) ? null : date;
+        }
+        const parsed = new Date(text);
+        return Number.isNaN(parsed.getTime()) ? null : parsed;
+    }
+
+    function formatDateDisplay(value) {
+        const date = parseDateValue(value);
+        if (!date) return value ? String(value).trim() : 'نامشخص';
+        return date.toLocaleDateString('fa-IR', { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    function getRegistrationDatePeriod(records) {
+        const dates = records.map(record => parseDateValue(record.registrationDateRaw || record.dateRaw))
+            .filter(Boolean)
+            .map(date => new Date(date.getFullYear(), date.getMonth(), date.getDate()))
+            .sort((a, b) => a - b);
+        if (!dates.length) return new Date().toLocaleDateString('fa-IR', { year: 'numeric', month: 'long' });
+        const first = dates[0], last = dates[dates.length - 1];
+        const firstText = formatDateDisplay(first), lastText = formatDateDisplay(last);
+        return first.getTime() === last.getTime() ? firstText : `${firstText} تا ${lastText}`;
     }
 
     /* ==========================================================================
@@ -1172,7 +1207,7 @@
         document.getElementById('voiceNoteInput').value = '';
         statusEl.innerHTML = `<span style="color:var(--good);"><i class="fa-solid fa-check"></i> ${done} فایل صوتی در پوشه‌ی «${safeFolderName(ex)}» ذخیره شد.</span>`;
         await saveRecovery();
-        await renderVoiceList(ex);
+        await renderVoiceList(ex, combinedDataset.filter(record => record.expertName === ex));
         applyFilteringPipeline(); // نمایش فوری دکمه پخش کنار لید منطبق
     }
 
@@ -1205,13 +1240,17 @@
         }
         voiceMeta[expertName] = list.filter(v => v.id !== id);
         await saveRecovery();
-        await renderVoiceList(expertName);
+        await renderVoiceList(expertName, combinedDataset.filter(record => record.expertName === expertName));
     }
 
-    async function renderVoiceList(expertName) {
+    async function renderVoiceList(expertName, records = []) {
         const cont = document.getElementById('voiceListContainer');
         if (!cont) return;
-        const list = (voiceMeta[expertName] || []);
+        let list = (voiceMeta[expertName] || []);
+        if (getSessionTeam()) {
+            const linkedFiles = new Set(records.map(record => voiceForLead(expertName, record.leadPhone)?.fileName).filter(Boolean));
+            list = list.filter(voice => linkedFiles.has(voice.fileName));
+        }
         if (!expertName) { cont.innerHTML = '<div style="color:var(--ink-soft); font-size:12px;">یک کارشناس را انتخاب کنید.</div>'; return; }
         if (!list.length) { cont.innerHTML = '<div style="color:var(--ink-soft); font-size:12px;">هنوز فایل صوتی برای این کارشناس ثبت نشده است.</div>'; return; }
 
@@ -1307,10 +1346,18 @@
             let leadPhone = r['lead_phone'] || r['Lead Phone'] || 'نامشخص';
             let comment = r['QC comment'] || r['QC_comment'] || r['کامنت'] || '';
             
-            let date = r['action_date'] || r['form_created_date'] || 'نامشخص';
-            if (typeof date === 'number') {
-                date = new Date((date - 25569) * 86400 * 1000);
-            }
+            const findDateValue = (names) => {
+                const key = Object.keys(r).find(k => names.includes(k.trim().toLowerCase()));
+                return key ? r[key] : undefined;
+            };
+            const actionDate = findDateValue(['action_date', 'action date']);
+            const formCreatedDate = findDateValue(['form_created_date', 'form created date']);
+            let registrationDate = formCreatedDate || actionDate || 'نامشخص';
+            let date = type === 'mlm'
+                ? (formCreatedDate || actionDate || 'نامشخص')
+                : (actionDate || formCreatedDate || 'نامشخص');
+            if (typeof date === 'number') date = parseDateValue(date) || date;
+            if (typeof registrationDate === 'number') registrationDate = parseDateValue(registrationDate) || registrationDate;
 
             let listeningTimeKey = Object.keys(r).find(k => {
                 let cleanK = k.trim().toLowerCase();
@@ -1341,6 +1388,7 @@
                 listeningTime: listeningTime,
                 qcComment: comment,
                 dateRaw: date,
+                registrationDateRaw: registrationDate,
                 formType: type,
                 elements: elements
             });
@@ -1349,14 +1397,32 @@
     }
 
     function checkUploadCompletion() {
-        if(teleRawData.length > 0 || accRawData.length > 0 || mlmRawData.length > 0) {
-            document.getElementById('processButtonContainer').style.display = 'block';
-        }
+        const roleTeam = getSessionTeam();
+        const hasData = roleTeam === 'tele' ? teleRawData.length > 0
+            : roleTeam === 'account' ? accRawData.length > 0
+            : roleTeam === 'mlm' ? mlmRawData.length > 0
+            : (teleRawData.length > 0 || accRawData.length > 0 || mlmRawData.length > 0);
+        document.getElementById('processButtonContainer').style.display = hasData ? 'block' : 'none';
     }
 
     // COMPILE AND PREPARE INTERFACE
     function compileAndRenderDashboard() {
         combinedDataset = [...teleRawData, ...accRawData, ...mlmRawData];
+        const roleTeam = getSessionTeam();
+        if (roleTeam && !combinedDataset.some(record => record.formType === roleTeam)) {
+            allCombinedDataset = [...combinedDataset];
+            combinedDataset = [];
+            currentDisplayedRecords = [];
+            allGlobalRankedList = [];
+            globalRankedList = [];
+            applyRoleVisibility();
+            document.getElementById('uploadWrapperGlobal').style.display = 'grid';
+            document.getElementById('processButtonContainer').style.display = 'none';
+            document.getElementById('dashboardWorkspace').style.display = 'none';
+            document.getElementById('btnReupload').style.display = 'none';
+            document.getElementById('btnInitFeedback').style.display = 'none';
+            return;
+        }
         
         let grouped = {};
         combinedDataset.forEach(d => {
@@ -1402,20 +1468,18 @@
         });
 
         globalRankedList.forEach(item => {
-            // قانون تیم‌بندی: کارشناسِ صرفاً MLM => تیم mlm؛ در غیر این صورت فرم تله (با یا بدون اکانت) => تیم تله، فقط اکانت => تیم اکانت.
-            if (item.mlmCount > 0 && item.teleCount === 0 && item.accCount === 0) item.team = 'mlm';
-            else if (item.teleCount > 0) item.team = 'tele';
-            else if (item.accCount > 0) item.team = 'account';
-            else item.team = 'mlm_bmpl';
-            item.teams = [item.team];
+            item.teams = [];
+            if (item.teleCount > 0) item.teams.push('tele');
+            if (item.accCount > 0) item.teams.push('account');
+            if (item.mlmCount > 0) item.teams.push('mlm');
+            item.team = item.teams.length === 1 ? item.teams[0] : (item.teams.length ? 'mixed' : 'unknown');
         });
 
         allCombinedDataset = [...combinedDataset];
-        allGlobalRankedList = [...globalRankedList];
+        allGlobalRankedList = [...globalRankedList].sort((a,b) => b.combinedAvg - a.combinedAvg);
 
         applyRoleFilter();
-
-        globalRankedList.sort((a,b) => b.combinedAvg - a.combinedAvg);
+        applyRoleVisibility();
 
         // Reset Filter inputs and Populate options through search pipeline
         document.getElementById('expertSearchInput').value = '';
@@ -1697,9 +1761,16 @@
         let badge = document.getElementById('comparisonStatusBadge');
         let diagText = document.getElementById('comparisonDiagnosticText');
         let hasMlmOnly = stats.mlmAvg !== null && stats.teleAvg === null && stats.accAvg === null;
-        if(hasMlmOnly) {
+        const roleTeam = getSessionTeam();
+        if(hasMlmOnly || roleTeam === 'mlm') {
             badge.className = "badge good"; badge.textContent = "ارزیابی تخصصی تیم MLM";
-            diagText.innerHTML = `🟢 <b>تحلیل تیم MLM:</b> کارشناس در تیم MLM ارزیابی شده است. میانگین تخصصی MLM برابر <b>${stats.mlmAvg.toFixed(1)}%</b> از روی <b>${stats.mlmCount || 0}</b> تماس شنودشده است.`;
+            diagText.innerHTML = `🟢 <b>تحلیل تیم MLM:</b> کارشناس در تیم MLM ارزیابی شده است. میانگین تخصصی MLM برابر <b>${(stats.mlmAvg || 0).toFixed(1)}%</b> از روی <b>${stats.mlmCount || 0}</b> تماس شنودشده است.`;
+        } else if(roleTeam === 'tele') {
+            badge.className = "badge good"; badge.textContent = "ارزیابی تخصصی تیم تله‌سلز";
+            diagText.innerHTML = `🟢 <b>تحلیل تیم تله‌سلز:</b> میانگین فرم تله‌سلز <b>${(stats.teleAvg || 0).toFixed(1)}%</b> از روی <b>${stats.teleCount || 0}</b> ارزیابی است.`;
+        } else if(roleTeam === 'account') {
+            badge.className = "badge good"; badge.textContent = "ارزیابی تخصصی تیم اکانت";
+            diagText.innerHTML = `🟢 <b>تحلیل تیم اکانت:</b> میانگین فرم اکانت <b>${(stats.accAvg || 0).toFixed(1)}%</b> از روی <b>${stats.accCount || 0}</b> ارزیابی است.`;
         } else if(stats.teleAvg !== null && stats.accAvg !== null) {
             let diff = stats.teleAvg - stats.accAvg;
             if(Math.abs(diff) <= 6) {
@@ -1723,7 +1794,7 @@
         renderLeadsTableList(records);
         renderLiveSkillProfiling(records);
         renderStoredActionsList(expertName);
-        renderVoiceList(expertName);
+        renderVoiceList(expertName, records);
     }
 
     function renderSuccessRatesBars(records) {
@@ -1871,22 +1942,33 @@
             if(e.name === active) tr.style.background = '#1e293b';
 
             let tSymbol = '-';
-            if(e.mlmCount > 0 && e.teleCount === 0 && e.accCount === 0) {
+            const roleTeam = getSessionTeam();
+            if (roleTeam === 'mlm' || (e.mlmCount > 0 && e.teleCount === 0 && e.accCount === 0)) {
                 tSymbol = '🟢 تیم MLM';
+            } else if (roleTeam === 'tele') {
+                tSymbol = '📞 تیم تله‌سلز';
+            } else if (roleTeam === 'account') {
+                tSymbol = '🤝 تیم اکانت';
             } else if(e.teleAvg!==null && e.accAvg!==null) {
                 tSymbol = Math.abs(e.teleAvg - e.accAvg) <= 6 ? '⚖️ متوازن' : (e.teleAvg > e.accAvg ? '📞 قوی‌تر در تله':'🤝 قوی‌تر در اکانت');
+            } else if (e.teams && e.teams.length > 1) {
+                tSymbol = 'چندفرمی';
             }
+            const countLabel = roleTeam === 'mlm' ? `${e.mlmCount} ارزیابی MLM`
+                : roleTeam === 'tele' ? `${e.teleCount} ارزیابی تله‌سلز`
+                : roleTeam === 'account' ? `${e.accCount} ارزیابی اکانت`
+                : `${e.teleCount} تماس تله / ${e.accCount} اکانت / ${e.mlmCount} تماس MLM`;
 
             tr.innerHTML = `
                 <td><b>${idx + 1}</b></td>
                 <td><strong>${e.name}</strong></td>
                 <td><span class="badge good" style="background:rgba(56,189,248,0.1); color:var(--brand);">${e.combinedAvg.toFixed(1)}%</span></td>
-                <td>${e.teleAvg !== null ? e.teleAvg.toFixed(1)+'%' : '-'}</td>
-                <td>${e.accAvg !== null ? e.accAvg.toFixed(1)+'%' : '-'}</td>
-                <td>${e.mlmAvg !== null ? e.mlmAvg.toFixed(1)+'%' : '-'}</td>
-                <td><small>${e.teleCount} تماس تله / ${e.accCount} اکانت / ${e.mlmCount} تماس MLM</small></td>
+                <td class="leaderboard-tele-col">${e.teleAvg !== null ? e.teleAvg.toFixed(1)+'%' : '-'}</td>
+                <td class="leaderboard-account-col">${e.accAvg !== null ? e.accAvg.toFixed(1)+'%' : '-'}</td>
+                <td class="leaderboard-mlm-col">${e.mlmAvg !== null ? e.mlmAvg.toFixed(1)+'%' : '-'}</td>
+                <td><small>${countLabel}</small></td>
                 <td style="color:${e.redlines > 0 ? 'var(--bad)':'var(--good)'}; font-weight:bold;">${e.redlines} مورد</td>
-                <td><small>${tSymbol}</small></td>
+                <td class="leaderboard-balance-col"><small>${tSymbol}</small></td>
             `;
             tr.onclick = function() {
                 document.getElementById('expertSelect').value = e.name;
@@ -1896,6 +1978,8 @@
             };
             tbody.appendChild(tr);
         });
+        // Rows are created after the page's initial role filter, so reapply column visibility now.
+        applyRoleVisibility();
     }
 
     function renderErrorHeatmaps() {
@@ -1982,7 +2066,7 @@
         if(!title) return;
 
         if(!storedActions[ex]) storedActions[ex] = [];
-        storedActions[ex].push({ id: Date.now(), title: title, status: stat, date: new Date().toLocaleDateString('fa-IR') });
+        storedActions[ex].push({ id: Date.now(), title: title, status: stat, date: new Date().toLocaleDateString('fa-IR'), team: getSessionTeam() || 'all' });
         saveRecovery();
         document.getElementById('actionTitleInput').value = '';
         renderStoredActionsList(ex);
@@ -1995,6 +2079,8 @@
     function renderStoredActionsList(ex) {
         const list = document.getElementById('actionItemsList'); list.innerHTML = '';
         let arr = storedActions[ex] || [];
+        const roleTeam = getSessionTeam();
+        if (roleTeam) arr = arr.filter(action => action.team === roleTeam);
         if(!arr.length) {
             list.innerHTML = '<li style="color:var(--ink-soft); font-size:12px;">اقدامی ثبت نشده است.</li>'; return;
         }
@@ -2030,7 +2116,8 @@
     function teamScheduleExperts(){
         const meta=scheduleMeta(), hidden=new Set(meta.hidden.map(x=>String(x).trim()));
         const roleExperts=globalRankedList.map(e=>String(e.name).trim()).filter(Boolean);
-        return [...new Set([...roleExperts.filter(n=>!hidden.has(n)), ...meta.custom.map(x=>String(x).trim()).filter(Boolean)])];
+        const customExperts=getSessionTeam()?[]:meta.custom.map(x=>String(x).trim()).filter(Boolean);
+        return [...new Set([...roleExperts.filter(n=>!hidden.has(n)), ...customExperts])];
     }
     function escapeAttr(v){ return String(v||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
     function openMonthlyNotice() {
@@ -2212,7 +2299,7 @@
             scores[e.name] = Number(e.combinedAvg.toFixed(2));
             profiles[e.name] = calculateElementRates(combinedDataset.filter(r => r.expertName === e.name));
         });
-        const payload = { version:2, month, exportedAt:new Date().toISOString(), scores, profiles };
+        const payload = { version:2, teamScope:getSessionTeam() || 'all', month, exportedAt:new Date().toISOString(), scores, profiles };
         const a=document.createElement('a');
         a.href=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}));
         a.download='میانگین_ماهانه_'+month.replace(/\s+/g,'_')+'.json'; a.click(); URL.revokeObjectURL(a.href);
@@ -2224,11 +2311,25 @@
         reader.onload=()=>{ try {
             const obj=JSON.parse(reader.result); const scores=obj.scores || obj;
             if (!scores || typeof scores !== 'object' || Array.isArray(scores)) throw new Error();
-            previousMonthlyScores=scores; previousMonthlyProfiles=obj.profiles || {}; previousMonthLabel=obj.month || 'ماه قبل';
+            const roleTeam=getSessionTeam();
+            const allowedNames=new Set(globalRankedList.map(expert=>expert.name));
+            const filterByVisibleExpert=(source)=>Object.fromEntries(Object.entries(source||{}).filter(([name])=>allowedNames.has(name)));
+            previousMonthLabel=obj.month || 'ماه قبل';
+            if (roleTeam) {
+                const visibleProfiles=filterByVisibleExpert(obj.profiles || {});
+                previousMonthlyProfiles=Object.fromEntries(Object.entries(visibleProfiles).map(([name,profile])=>[name,{[roleTeam]:profile?.[roleTeam] || {}}]));
+                previousMonthlyScores=obj.teamScope===roleTeam ? filterByVisibleExpert(scores) : {};
+            } else {
+                previousMonthlyScores=scores;
+                previousMonthlyProfiles=obj.profiles || {};
+            }
             const profileCount=Object.keys(previousMonthlyProfiles).length;
-            document.getElementById('previousScoresStatus').textContent='دیتای «'+previousMonthLabel+'» بارگذاری شد ('+Object.keys(scores).length+' کارشناس، '+profileCount+' پروفایل المان)';
+            const scoreCount=Object.keys(previousMonthlyScores).length;
+            const scopeNotice=roleTeam && obj.teamScope!==roleTeam ? '؛ نمره کلی فایل با دسترسی تیمی وارد نشد' : '';
+            document.getElementById('previousScoresStatus').textContent='دیتای «'+previousMonthLabel+'» بارگذاری شد ('+scoreCount+' نمره، '+profileCount+' پروفایل المان)'+scopeNotice;
             const ex=document.getElementById('mExpertName').textContent.trim();
-            if (Number.isFinite(Number(scores[ex]))) document.getElementById('mPreviousScoreInput').value=Number(scores[ex]).toFixed(1);
+            document.getElementById('mPreviousScoreInput').value = Number.isFinite(Number(previousMonthlyScores[ex]))
+                ? Number(previousMonthlyScores[ex]).toFixed(1) : '';
             syncMinutesEditableFields();
             renderMonthlyElementsComparison(ex, combinedDataset.filter(r => r.expertName === ex));
         } catch(e) { alert('ساختار فایل JSON معتبر نیست. فایل خروجی همین پنل را انتخاب کنید.'); } };
@@ -2239,20 +2340,22 @@
         let stats = globalRankedList.find(e => e.name === ex);
         if(!stats) return;
 
-        // در دسترسی تیم اکانت فقط بخش اکانت، و در دسترسی تیم MLM فقط بخش MLM در کارنامه نمایش داده می‌شود.
-        const accountOnlyReport = sessionRole === 'account_qc';
-        const mlmOnlyReport = sessionRole === 'mlm_bmpl_qc';
-        const showTele = !accountOnlyReport && !mlmOnlyReport;
-        const showAcc = !mlmOnlyReport;
-        const showMlm = !accountOnlyReport;
+        const roleTeam = getSessionTeam();
+        const teleOnlyReport = roleTeam === 'tele';
+        const accountOnlyReport = roleTeam === 'account';
+        const mlmOnlyReport = roleTeam === 'mlm';
+        const showTele = !roleTeam || teleOnlyReport;
+        const showAcc = !roleTeam || accountOnlyReport;
+        const showMlm = !roleTeam || mlmOnlyReport;
+        const recs = combinedDataset.filter(d => d.expertName === ex);
         document.getElementById('mTeleChartSection').style.display = showTele ? 'block' : 'none';
         document.getElementById('mAccChartSection').style.display = showAcc ? 'block' : 'none';
         document.getElementById('mMlmChartSection').style.display = showMlm ? 'block' : 'none';
         document.getElementById('mTeleDetailsSection').style.display = showTele ? 'block' : 'none';
         document.getElementById('mAccDetailsSection').style.display = showAcc ? 'block' : 'none';
         document.getElementById('mMlmDetailsSection').style.display = showMlm ? 'block' : 'none';
-        document.getElementById('mTeamScoresRow').style.display = 'table-row';
-        document.getElementById('mTeamCountsRow').style.display = 'table-row';
+        document.getElementById('mTeamScoresRow').style.display = mlmOnlyReport ? 'none' : 'table-row';
+        document.getElementById('mTeamCountsRow').style.display = mlmOnlyReport ? 'none' : 'table-row';
         document.getElementById('mMlmScoresRow').style.display = showMlm ? 'table-row' : 'none';
         document.getElementById('mTeleScoreLabel').style.display = showTele ? 'table-cell' : 'none';
         document.getElementById('mTeleScoreCell').style.display = showTele ? 'table-cell' : 'none';
@@ -2273,12 +2376,14 @@
 
         // Header dates
         const now = new Date();
-        const persianMonth = now.toLocaleDateString('fa-IR', {month: 'long'});
         const persianFullDate = now.toLocaleDateString('fa-IR', {year: 'numeric', month: 'long', day: 'numeric'});
         const periodInput = document.getElementById('mReportPeriodInput');
-        if (!periodInput.value.trim()) periodInput.value = persianMonth;
-        document.getElementById('mPersianMonth').textContent = periodInput.value.trim();
+        periodInput.value = getRegistrationDatePeriod(recs);
+        document.getElementById('mPersianMonth').textContent = periodInput.value;
         document.getElementById('mIssuanceDate').textContent = persianFullDate;
+        document.getElementById('mCombinedScoreLabel').textContent = roleTeam
+            ? `میانگین نهایی ${roleTeam === 'mlm' ? 'MLM' : (roleTeam === 'tele' ? 'تله‌سلز' : 'اکانت')}:`
+            : 'میانگین ترکیبی نهایی:';
 
         document.getElementById('mExpertName').textContent = ex;
         document.getElementById('mCombinedScore').textContent = stats.combinedAvg.toFixed(1) + '%';
@@ -2298,6 +2403,7 @@
         document.getElementById('mAccDetailsZone').innerHTML = document.getElementById('accCriteriaBreakdownContainer').innerHTML;
         document.getElementById('mMlmDetailsZone').innerHTML = document.getElementById('mlmCriteriaBreakdownContainer').innerHTML;
         let actions = storedActions[ex] || [];
+        if (roleTeam) actions = actions.filter(action => action.team === roleTeam);
         document.getElementById('mActionsZone').innerHTML = actions.map(a => `• <b>${a.title}</b> [وضعیت: ${a.status}] — ${a.date || 'تاریخ نامشخص'}`).join('<br/>') || 'بدون اقدام اصلاحی ثبت‌شده.';
 
         // Custom notes
@@ -2310,7 +2416,6 @@
             document.getElementById('mCustomNotesZoneWrap').style.display = 'none';
         }
 
-        const recs = combinedDataset.filter(d => d.expertName === ex);
         renderMonthlyElementsComparison(ex, recs);
 
         // Redlines zone (no phone numbers)
@@ -2720,23 +2825,107 @@
     let allCombinedDataset = [];
     let allGlobalRankedList = [];
 
+    function getSessionTeam() {
+        if (sessionRole === 'tele_qc') return 'tele';
+        if (sessionRole === 'account_qc') return 'account';
+        if (sessionRole === 'mlm_bmpl_qc') return 'mlm';
+        return null;
+    }
+
     function applyRoleFilter() {
-        if (!sessionRole || sessionRole === 'admin') {
+        const roleTeam = getSessionTeam();
+        if (!roleTeam) {
             combinedDataset = [...allCombinedDataset];
-            globalRankedList = [...allGlobalRankedList];
+            globalRankedList = [...allGlobalRankedList].sort((a,b) => b.combinedAvg - a.combinedAvg);
             return;
         }
-        const allowedTeams = [];
-        if (sessionRole === 'tele_qc') allowedTeams.push('tele');
-        if (sessionRole === 'account_qc') allowedTeams.push('account');
-        if (sessionRole === 'mlm_bmpl_qc') allowedTeams.push('mlm', 'mlm_bmpl');
 
-        globalRankedList = allGlobalRankedList.filter(e => {
-            const teams = e.teams && e.teams.length ? e.teams : [e.team];
-            return teams.some(t => allowedTeams.includes(t));
+        const avgKey = roleTeam + 'Avg';
+        const countKey = roleTeam + 'Count';
+        combinedDataset = allCombinedDataset.filter(record => record.formType === roleTeam);
+        const visibleNames = new Set(combinedDataset.map(record => record.expertName));
+        const visibleRedlines = {};
+        combinedDataset.forEach(record => {
+            if (record.redline === 1) visibleRedlines[record.expertName] = (visibleRedlines[record.expertName] || 0) + 1;
         });
-        const allowedNames = new Set(globalRankedList.map(e => e.name));
-        combinedDataset = allCombinedDataset.filter(d => allowedNames.has(d.expertName));
+
+        globalRankedList = allGlobalRankedList
+            .filter(expert => visibleNames.has(expert.name) && expert[countKey] > 0)
+            .map(expert => ({
+                ...expert,
+                teleAvg: roleTeam === 'tele' ? expert.teleAvg : null,
+                accAvg: roleTeam === 'account' ? expert.accAvg : null,
+                mlmAvg: roleTeam === 'mlm' ? expert.mlmAvg : null,
+                combinedAvg: expert[avgKey] ?? 0,
+                teleCount: roleTeam === 'tele' ? expert.teleCount : 0,
+                accCount: roleTeam === 'account' ? expert.accCount : 0,
+                mlmCount: roleTeam === 'mlm' ? expert.mlmCount : 0,
+                redlines: visibleRedlines[expert.name] || 0,
+                team: roleTeam,
+                teams: [roleTeam]
+            }))
+            .sort((a,b) => b.combinedAvg - a.combinedAvg);
+    }
+
+    function applyRoleVisibility() {
+        const roleTeam = getSessionTeam();
+        const isAdminView = !roleTeam;
+        const teamLabels = { tele: 'تله‌سلز', account: 'اکانت', mlm: 'MLM' };
+        const visible = team => isAdminView || roleTeam === team;
+        const setDisplay = (id, show) => {
+            const element = document.getElementById(id);
+            if (element) element.style.display = show ? '' : 'none';
+        };
+
+        [['tele','teleBox'],['account','accBox'],['mlm','mlmBox']].forEach(([team,id]) => setDisplay(id, visible(team)));
+        setDisplay('btnManualSave', isAdminView && !FS_SUPPORTED);
+        setDisplay('btnManualLoad', isAdminView && !FS_SUPPORTED);
+        setDisplay('kpiCombinedCard', isAdminView);
+        setDisplay('kpiTeleCard', visible('tele'));
+        setDisplay('kpiAccCard', visible('account'));
+        setDisplay('kpiMlmCard', visible('mlm'));
+        setDisplay('kpiRedlineCard', true);
+
+        [['tele','comparisonTeleBox'],['account','comparisonAccountBox'],['mlm','comparisonMlmBox'],
+         ['tele','teleRadarPanel'],['account','accountRadarPanel'],['mlm','mlmRadarPanel'],
+         ['tele','teleBreakdownPanel'],['account','accountBreakdownPanel'],['mlm','mlmBreakdownPanel'],
+         ['tele','teleMatrixCard'],['account','accountMatrixCard'],['mlm','mlmMatrixCard']]
+            .forEach(([team,id]) => setDisplay(id, visible(team)));
+
+        document.querySelectorAll('.leaderboard-tele-col').forEach(el => { el.style.display = visible('tele') ? '' : 'none'; });
+        document.querySelectorAll('.leaderboard-account-col').forEach(el => { el.style.display = visible('account') ? '' : 'none'; });
+        document.querySelectorAll('.leaderboard-mlm-col').forEach(el => { el.style.display = visible('mlm') ? '' : 'none'; });
+        document.querySelectorAll('.leaderboard-balance-col').forEach(el => { el.style.display = isAdminView ? '' : 'none'; });
+
+        const comparisonTitle = document.getElementById('comparisonAnalysisTitle');
+        const radarTitle = document.getElementById('radarAnalysisTitle');
+        const criteriaTitle = document.getElementById('criteriaBreakdownTitle');
+        const leaderboardTitle = document.getElementById('leaderboardTitle');
+        const leaderboardTab = document.getElementById('tabBtnLeaderboard');
+        const matrixTab = document.getElementById('tabBtnMatrix');
+        const combinedHeader = document.getElementById('leaderboardCombinedHeader');
+        const countHeader = document.getElementById('leaderboardCountHeader');
+
+        if (isAdminView) {
+            if (comparisonTitle) comparisonTitle.innerHTML = '<i class="fa-solid fa-code-compare" style="color: var(--gold);"></i> موازنه مهارت کارشناس (مقایسه فرم‌های تله، اکانت و MLM)';
+            if (radarTitle) radarTitle.innerHTML = '<i class="fa-solid fa-bullseye" style="color: var(--brand);"></i> نمودار عنکبوتی (رادار) تحلیل المان‌های هر فرم';
+            if (criteriaTitle) criteriaTitle.innerHTML = '<i class="fa-solid fa-chart-bar" style="color: var(--brand);"></i> ریز درصد تحقق موفقیت هر المان به تفکیک فرم تماس';
+            if (leaderboardTitle) leaderboardTitle.innerHTML = '<i class="fa-solid fa-ranking-star" style="color: var(--brand);"></i> جدول رتبه‌بندی نهایی کل کارشناسان بر اساس میانگین واقعی هر سه فرم (تله‌سلز، اکانت و MLM)';
+            if (leaderboardTab) leaderboardTab.innerHTML = '<i class="fa-solid fa-trophy"></i> جدول مقایسه توازن کل تیم';
+            if (matrixTab) matrixTab.innerHTML = '<i class="fa-solid fa-border-all"></i> ماتریس خطای المان‌ها';
+            if (combinedHeader) combinedHeader.textContent = 'میانگین ترکیبی نهایی';
+            if (countHeader) countHeader.textContent = 'تعداد کل ارزیابی‌ها';
+        } else {
+            const teamLabel = teamLabels[roleTeam];
+            if (comparisonTitle) comparisonTitle.innerHTML = `<i class="fa-solid fa-code-compare" style="color: var(--gold);"></i> ارزیابی تخصصی تیم ${teamLabel}`;
+            if (radarTitle) radarTitle.innerHTML = `<i class="fa-solid fa-bullseye" style="color: var(--brand);"></i> نمودار عنکبوتی تحلیل المان‌های فرم ${teamLabel}`;
+            if (criteriaTitle) criteriaTitle.innerHTML = `<i class="fa-solid fa-chart-bar" style="color: var(--brand);"></i> جزئیات المان‌های فرم ${teamLabel}`;
+            if (leaderboardTitle) leaderboardTitle.innerHTML = `<i class="fa-solid fa-ranking-star" style="color: var(--brand);"></i> رتبه‌بندی کارشناسان تیم ${teamLabel} بر اساس میانگین فرم ${teamLabel}`;
+            if (leaderboardTab) leaderboardTab.innerHTML = `<i class="fa-solid fa-trophy"></i> رتبه‌بندی تیم ${teamLabel}`;
+            if (matrixTab) matrixTab.innerHTML = `<i class="fa-solid fa-border-all"></i> ماتریس خطای ${teamLabel}`;
+            if (combinedHeader) combinedHeader.textContent = `میانگین ${teamLabel}`;
+            if (countHeader) countHeader.textContent = `تعداد ارزیابی‌های ${teamLabel}`;
+        }
     }
 
     function togglePasswordVisibility() {
@@ -2774,12 +2963,20 @@
         badge.textContent = roleDef.label;
         badge.style.display = 'inline-block';
         document.getElementById('btnLogout').style.display = 'inline-flex';
-        document.getElementById('uploadWrapperGlobal').style.display = 'grid';
-
-        // اگر داده پیش‌تر بازیابی شده ولی هنوز رندر نشده است، همین حالا رندر کن.
-        if ((teleRawData.length || accRawData.length || mlmRawData.length) && !combinedDataset.length) {
-            compileAndRenderDashboard();
+        applyRoleVisibility();
+        const roleTeam = getSessionTeam();
+        const roleHasData = roleTeam === 'tele' ? teleRawData.length > 0
+            : roleTeam === 'account' ? accRawData.length > 0
+            : roleTeam === 'mlm' ? mlmRawData.length > 0
+            : (teleRawData.length || accRawData.length || mlmRawData.length) > 0;
+        document.getElementById('uploadWrapperGlobal').style.display = roleHasData ? 'none' : 'grid';
+        if (!roleHasData) {
+            document.getElementById('dashboardWorkspace').style.display = 'none';
+            document.getElementById('processButtonContainer').style.display = 'none';
         }
+
+        // اگر داده‌ی فرم همین تیم بازیابی شده ولی هنوز رندر نشده، داشبورد را بساز.
+        if (roleHasData && !combinedDataset.length) compileAndRenderDashboard();
         submit.disabled = false;
         submit.innerHTML = 'ورود به سیستم';
     }
