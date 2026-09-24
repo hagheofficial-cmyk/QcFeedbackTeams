@@ -594,7 +594,7 @@
         <div class="tabs-nav">
             <button class="tab-btn active" onclick="switchTab('analyticsTab', this)"><i class="fa-solid fa-user-gear"></i> آنالیز پیشرفته و عارضه‌‌یابی ریز جزئیات</button>
             <button class="tab-btn" id="tabBtnLeaderboard" onclick="switchTab('leaderboardTab', this)"><i class="fa-solid fa-trophy"></i> جدول مقایسه توازن کل تیم</button>
-            <button class="tab-btn" id="tabBtnMatrix" onclick="switchTab('matrixTab', this)"><i class="fa-solid fa-border-all"></i> ماتریس خطای المان‌ها</button>
+            <button class="tab-btn" id="tabBtnMatrix" onclick="switchTab('matrixTab', this)"><i class="fa-solid fa-border-all"></i> ماتریس خطای MLM</button>
         </div>
 
         <div id="analyticsTab" class="tab-content active">
@@ -788,18 +788,6 @@
         </div>
 
         <div id="matrixTab" class="tab-content">
-            <div class="card" id="teleMatrixCard">
-                <div class="card-header">
-                    <h2><i class="fa-solid fa-border-all" style="color: var(--good);"></i> ماتریس درصد خطای المان‌های تله‌سلز ( نسبت کسر امتیاز صفر )</h2>
-                </div>
-                <div class="heatmap-scroll"><table class="heatmap-table" id="teleErrorMatrixTable"></table></div>
-            </div>
-            <div class="card" id="accountMatrixCard">
-                <div class="card-header">
-                    <h2><i class="fa-solid fa-border-all" style="color: var(--purple);"></i> ماتریس درصد خطای المان‌های اکانت ( نسبت کسر امتیاز صفر )</h2>
-                </div>
-                <div class="heatmap-scroll"><table class="heatmap-table" id="accErrorMatrixTable"></table></div>
-            </div>
             <div class="card" id="mlmMatrixCard">
                 <div class="card-header">
                     <h2><i class="fa-solid fa-border-all" style="color: var(--gold);"></i> ماتریس درصد خطای المان‌های MLM ( نسبت کسر امتیاز صفر )</h2>
@@ -1983,79 +1971,33 @@
     }
 
     function renderErrorHeatmaps() {
-        const tTable = document.getElementById('teleErrorMatrixTable');
-        tTable.innerHTML = '';
-        let exps = [...new Set(combinedDataset.map(d => d.expertName))].sort();
+        const table = document.getElementById('mlmErrorMatrixTable');
+        if (!table) return;
+        const experts = [...new Set(combinedDataset
+            .filter(record => record.formType === 'mlm')
+            .map(record => record.expertName))].sort();
+        let html = '<thead><tr><th class="sticky-col">نام کارشناس</th>';
+        Object.keys(mlmCriteriaMapping).forEach(key => { html += `<th>${mlmCriteriaMapping[key]}</th>`; });
+        html += '</tr></thead><tbody>';
 
-        let tHead = '<thead><tr><th class="sticky-col">نام کارشناس فروش</th>';
-        Object.keys(teleCriteriaMapping).forEach(k => { tHead += `<th>${teleCriteriaMapping[k]}</th>`; });
-        tHead += '</tr></thead><tbody>';
-
-        exps.forEach(ex => {
-            let sub = combinedDataset.filter(d => d.expertName === ex && d.formType==='tele');
-            if(!sub.length) return;
-            tHead += `<tr><td class="sticky-col">${ex}</td>`;
-            Object.keys(teleCriteriaMapping).forEach(k => {
+        experts.forEach(expertName => {
+            const rows = combinedDataset.filter(record => record.expertName === expertName && record.formType === 'mlm');
+            if (!rows.length) return;
+            html += `<tr><td class="sticky-col">${expertName}</td>`;
+            Object.keys(mlmCriteriaMapping).forEach(key => {
                 let valid = 0, zero = 0;
-                sub.forEach(r => {
-                    if(r.elements[k]===0) { zero++; valid++; }
-                    else if(r.elements[k]===1) { valid++; }
+                rows.forEach(record => {
+                    if (record.elements[key] === 0) { zero++; valid++; }
+                    else if (record.elements[key] === 1) valid++;
                 });
-                let errPct = valid ? Math.round((zero / valid) * 100) : 0;
-                let bg = errPct > 35 ? 'rgba(239,68,68,0.25)' : (errPct > 15 ? 'rgba(245,158,11,0.18)' : 'rgba(16,185,129,0.06)');
-                tHead += `<td class="cell-value" style="background:${bg};">${errPct}%</td>`;
+                const errorPercent = valid ? Math.round((zero / valid) * 100) : 0;
+                const color = errorPercent > 35 ? 'rgba(239,68,68,0.25)'
+                    : errorPercent > 15 ? 'rgba(245,158,11,0.18)' : 'rgba(16,185,129,0.06)';
+                html += `<td class="cell-value" style="background:${color};">${errorPercent}%</td>`;
             });
-            tHead += '</tr>';
+            html += '</tr>';
         });
-        tTable.innerHTML = tHead + '</tbody>';
-
-        const aTable = document.getElementById('accErrorMatrixTable');
-        aTable.innerHTML = '';
-        let aHead = '<thead><tr><th class="sticky-col">نام کارشناس فروش</th>';
-        Object.keys(accCriteriaMapping).forEach(k => { aHead += `<th>${accCriteriaMapping[k]}</th>`; });
-        aHead += '</tr></thead><tbody>';
-
-        exps.forEach(ex => {
-            let sub = combinedDataset.filter(d => d.expertName === ex && d.formType==='account');
-            if(!sub.length) return;
-            aHead += `<tr><td class="sticky-col">${ex}</td>`;
-            Object.keys(accCriteriaMapping).forEach(k => {
-                let valid = 0, zero = 0;
-                sub.forEach(r => {
-                    if(r.elements[k]===0) { zero++; valid++; }
-                    else if(r.elements[k]===1) { valid++; }
-                });
-                let errPct = valid ? Math.round((zero / valid) * 100) : 0;
-                let bg = errPct > 35 ? 'rgba(239,68,68,0.25)' : (errPct > 15 ? 'rgba(245,158,11,0.18)' : 'rgba(16,185,129,0.06)');
-                aHead += `<td class="cell-value" style="background:${bg};">${errPct}%</td>`;
-            });
-            aHead += '</tr>';
-        });
-        aTable.innerHTML = aHead + '</tbody>';
-
-        const mTable = document.getElementById('mlmErrorMatrixTable');
-        mTable.innerHTML = '';
-        let mHead = '<thead><tr><th class="sticky-col">نام کارشناس فروش</th>';
-        Object.keys(mlmCriteriaMapping).forEach(k => { mHead += `<th>${mlmCriteriaMapping[k]}</th>`; });
-        mHead += '</tr></thead><tbody>';
-
-        exps.forEach(ex => {
-            let sub = combinedDataset.filter(d => d.expertName === ex && d.formType==='mlm');
-            if(!sub.length) return;
-            mHead += `<tr><td class="sticky-col">${ex}</td>`;
-            Object.keys(mlmCriteriaMapping).forEach(k => {
-                let valid = 0, zero = 0;
-                sub.forEach(r => {
-                    if(r.elements[k]===0) { zero++; valid++; }
-                    else if(r.elements[k]===1) { valid++; }
-                });
-                let errPct = valid ? Math.round((zero / valid) * 100) : 0;
-                let bg = errPct > 35 ? 'rgba(239,68,68,0.25)' : (errPct > 15 ? 'rgba(245,158,11,0.18)' : 'rgba(16,185,129,0.06)');
-                mHead += `<td class="cell-value" style="background:${bg};">${errPct}%</td>`;
-            });
-            mHead += '</tr>';
-        });
-        mTable.innerHTML = mHead + '</tbody>';
+        table.innerHTML = html + '</tbody>';
     }
 
     // ACTIONS TRACKER LOGIC
@@ -2888,9 +2830,12 @@
 
         [['tele','comparisonTeleBox'],['account','comparisonAccountBox'],['mlm','comparisonMlmBox'],
          ['tele','teleRadarPanel'],['account','accountRadarPanel'],['mlm','mlmRadarPanel'],
-         ['tele','teleBreakdownPanel'],['account','accountBreakdownPanel'],['mlm','mlmBreakdownPanel'],
-         ['tele','teleMatrixCard'],['account','accountMatrixCard'],['mlm','mlmMatrixCard']]
+         ['tele','teleBreakdownPanel'],['account','accountBreakdownPanel'],['mlm','mlmBreakdownPanel']]
             .forEach(([team,id]) => setDisplay(id, visible(team)));
+        const matrixVisible = isAdminView || roleTeam === 'mlm';
+        setDisplay('matrixTab', matrixVisible);
+        setDisplay('tabBtnMatrix', matrixVisible);
+        setDisplay('mlmMatrixCard', matrixVisible);
 
         document.querySelectorAll('.leaderboard-tele-col').forEach(el => { el.style.display = visible('tele') ? '' : 'none'; });
         document.querySelectorAll('.leaderboard-account-col').forEach(el => { el.style.display = visible('account') ? '' : 'none'; });
@@ -2912,7 +2857,7 @@
             if (criteriaTitle) criteriaTitle.innerHTML = '<i class="fa-solid fa-chart-bar" style="color: var(--brand);"></i> ریز درصد تحقق موفقیت هر المان به تفکیک فرم تماس';
             if (leaderboardTitle) leaderboardTitle.innerHTML = '<i class="fa-solid fa-ranking-star" style="color: var(--brand);"></i> جدول رتبه‌بندی نهایی کل کارشناسان بر اساس میانگین واقعی هر سه فرم (تله‌سلز، اکانت و MLM)';
             if (leaderboardTab) leaderboardTab.innerHTML = '<i class="fa-solid fa-trophy"></i> جدول مقایسه توازن کل تیم';
-            if (matrixTab) matrixTab.innerHTML = '<i class="fa-solid fa-border-all"></i> ماتریس خطای المان‌ها';
+            if (matrixTab) matrixTab.innerHTML = '<i class="fa-solid fa-border-all"></i> ماتریس خطای MLM';
             if (combinedHeader) combinedHeader.textContent = 'میانگین ترکیبی نهایی';
             if (countHeader) countHeader.textContent = 'تعداد کل ارزیابی‌ها';
         } else {
@@ -2922,7 +2867,7 @@
             if (criteriaTitle) criteriaTitle.innerHTML = `<i class="fa-solid fa-chart-bar" style="color: var(--brand);"></i> جزئیات المان‌های فرم ${teamLabel}`;
             if (leaderboardTitle) leaderboardTitle.innerHTML = `<i class="fa-solid fa-ranking-star" style="color: var(--brand);"></i> رتبه‌بندی کارشناسان تیم ${teamLabel} بر اساس میانگین فرم ${teamLabel}`;
             if (leaderboardTab) leaderboardTab.innerHTML = `<i class="fa-solid fa-trophy"></i> رتبه‌بندی تیم ${teamLabel}`;
-            if (matrixTab) matrixTab.innerHTML = `<i class="fa-solid fa-border-all"></i> ماتریس خطای ${teamLabel}`;
+            if (matrixTab) matrixTab.innerHTML = '<i class="fa-solid fa-border-all"></i> ماتریس خطای MLM';
             if (combinedHeader) combinedHeader.textContent = `میانگین ${teamLabel}`;
             if (countHeader) countHeader.textContent = `تعداد ارزیابی‌های ${teamLabel}`;
         }
