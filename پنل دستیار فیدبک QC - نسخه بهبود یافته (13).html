@@ -505,7 +505,7 @@
             <input type="file" id="manualRecoveryInput" accept=".json" style="display:none;" onchange="manualImportRecovery(event)">
             <button class="btn" id="btnManualLoad" style="display:none;" onclick="document.getElementById('manualRecoveryInput').click()" title="بازیابی فایل ریکاوری دیتا (حالت سازگاری)"><i class="fa-solid fa-upload"></i> بازیابی دیتا</button>
             <button class="btn purple" id="btnInitFeedback" style="display:none;" onclick="openConfidentialGate()"><i class="fa-solid fa-lock"></i> جلسه بازخورد محرمانه</button>
-            <button class="btn danger" id="btnReupload" style="display: none;" onclick="location.reload()"><i class="fa-solid fa-rotate"></i> بارگذاری مجدد فایل‌ها</button>
+            <button class="btn gold" id="btnReupload" style="display: none;" onclick="showUploadPanel()"><i class="fa-solid fa-file-arrow-up"></i> بارگذاری / به‌روزرسانی فایل‌ها</button>
             <button class="btn" id="themeToggleBtn" onclick="toggleTheme()" title="تغییر حالت نمایش"><i class="fa-solid fa-sun"></i> حالت روشن</button>
             <button class="btn" id="btnLogout" style="display: none;" onclick="doLogout()"><i class="fa-solid fa-right-from-bracket"></i> خروج</button>
         </div>
@@ -520,6 +520,10 @@
     </div>
 
     <div class="upload-grid" id="uploadWrapperGlobal" style="display: none;">
+        <div style="grid-column:1/-1; text-align:center; padding:12px 10px 2px;">
+            <h2 style="font-size:16px; color:var(--brand); margin-bottom:5px;"><i class="fa-solid fa-cloud-arrow-up"></i> بارگذاری فایل‌های ارزیابی QC</h2>
+            <p style="font-size:11.5px; color:var(--ink-soft);">فایل تیم موردنظر را انتخاب کنید؛ در دسترسی هر تیم فقط همان تیم پردازش و نمایش داده می‌شود.</p>
+        </div>
         <div class="upload-box" id="teleBox">
             <div style="font-size: 35px; color: var(--good); margin-bottom: 10px;"><i class="fa-solid fa-phone-volume"></i></div>
             <h2 style="font-size: 14px; margin-bottom: 5px; color:#fff;">۱. بارگذاری فایل فرم تله‌سلز (Telesales)</h2>
@@ -549,7 +553,8 @@
     </div>
     
     <div style="text-align: center; display: none;" id="processButtonContainer">
-        <button class="btn gold" style="padding: 12px 40px; font-size: 14px;" onclick="compileAndRenderDashboard()"><i class="fa-solid fa-calculator"></i> پردازش و رندر نهایی کارنامه‌ها</button>
+        <button class="btn gold" style="padding: 12px 40px; font-size: 14px;" onclick="compileAndRenderDashboard()"><i class="fa-solid fa-calculator"></i> پردازش و نمایش داشبورد</button>
+        <button class="btn" id="btnBackToDashboard" style="display:none; margin-right:8px;" onclick="returnToDashboard()"><i class="fa-solid fa-arrow-right"></i> بازگشت به داشبورد فعلی</button>
     </div>
 
     <div id="dashboardWorkspace" style="display: none; flex-direction: column; gap: 15px;">
@@ -854,6 +859,7 @@
     let teleRawData = [];
     let accRawData = [];
     let mlmRawData = [];
+    let uploadDataSnapshot = null;
     let combinedDataset = [];
     let globalRankedList = [];
     // storedActions is now persisted to the on-disk recovery file (NOT browser cache).
@@ -1384,13 +1390,64 @@
         return list;
     }
 
-    function checkUploadCompletion() {
+    function hasDataForCurrentRole() {
         const roleTeam = getSessionTeam();
-        const hasData = roleTeam === 'tele' ? teleRawData.length > 0
-            : roleTeam === 'account' ? accRawData.length > 0
-            : roleTeam === 'mlm' ? mlmRawData.length > 0
-            : (teleRawData.length > 0 || accRawData.length > 0 || mlmRawData.length > 0);
+        if (roleTeam === 'tele') return teleRawData.length > 0;
+        if (roleTeam === 'account') return accRawData.length > 0;
+        if (roleTeam === 'mlm') return mlmRawData.length > 0;
+        return teleRawData.length > 0 || accRawData.length > 0 || mlmRawData.length > 0;
+    }
+
+    function hasDashboardDataForCurrentRole() {
+        const roleTeam = getSessionTeam();
+        return combinedDataset.some(record => !roleTeam || record.formType === roleTeam);
+    }
+
+    function showUploadPanel() {
+        const uploadWrapper = document.getElementById('uploadWrapperGlobal');
+        const hasData = hasDataForCurrentRole();
+        const canReturn = hasDashboardDataForCurrentRole();
+        if (canReturn && !uploadDataSnapshot) {
+            uploadDataSnapshot = {
+                teleRawData: [...teleRawData],
+                accRawData: [...accRawData],
+                mlmRawData: [...mlmRawData]
+            };
+        }
+        ['teleFileInput', 'accFileInput', 'mlmFileInput'].forEach(id => {
+            const input = document.getElementById(id);
+            if (input) input.value = '';
+        });
+        document.getElementById('dashboardWorkspace').style.display = 'none';
+        uploadWrapper.style.display = 'grid';
         document.getElementById('processButtonContainer').style.display = hasData ? 'block' : 'none';
+        document.getElementById('btnBackToDashboard').style.display = canReturn ? 'inline-flex' : 'none';
+        document.getElementById('btnReupload').style.display = 'none';
+        document.getElementById('btnInitFeedback').style.display = 'none';
+        applyRoleVisibility();
+    }
+
+    function returnToDashboard() {
+        if (!hasDashboardDataForCurrentRole()) return;
+        if (uploadDataSnapshot) {
+            teleRawData = uploadDataSnapshot.teleRawData;
+            accRawData = uploadDataSnapshot.accRawData;
+            mlmRawData = uploadDataSnapshot.mlmRawData;
+            uploadDataSnapshot = null;
+        }
+        document.getElementById('uploadWrapperGlobal').style.display = 'none';
+        document.getElementById('processButtonContainer').style.display = 'none';
+        document.getElementById('btnBackToDashboard').style.display = 'none';
+        document.getElementById('dashboardWorkspace').style.display = 'flex';
+        document.getElementById('btnReupload').style.display = 'inline-flex';
+        document.getElementById('btnInitFeedback').style.display = 'inline-flex';
+    }
+
+    function checkUploadCompletion() {
+        const hasData = hasDataForCurrentRole();
+        document.getElementById('processButtonContainer').style.display = hasData ? 'block' : 'none';
+        const backButton = document.getElementById('btnBackToDashboard');
+        if (backButton) backButton.style.display = hasDashboardDataForCurrentRole() ? 'inline-flex' : 'none';
     }
 
     // COMPILE AND PREPARE INTERFACE
@@ -1408,6 +1465,7 @@
             document.getElementById('processButtonContainer').style.display = 'none';
             document.getElementById('dashboardWorkspace').style.display = 'none';
             document.getElementById('btnReupload').style.display = 'none';
+            document.getElementById('btnBackToDashboard').style.display = 'none';
             document.getElementById('btnInitFeedback').style.display = 'none';
             return;
         }
@@ -1478,7 +1536,10 @@
         document.getElementById('processButtonContainer').style.display = 'none';
         document.getElementById('dashboardWorkspace').style.display = 'flex';
         document.getElementById('btnReupload').style.display = 'inline-flex';
+        document.getElementById('btnBackToDashboard').style.display = 'none';
         document.getElementById('btnInitFeedback').style.display = 'inline-flex';
+
+        uploadDataSnapshot = null;
 
         // Persist the freshly compiled raw data to the on-disk recovery file
         // so that next login restores everything without re-uploading.
@@ -2909,15 +2970,14 @@
         badge.style.display = 'inline-block';
         document.getElementById('btnLogout').style.display = 'inline-flex';
         applyRoleVisibility();
-        const roleTeam = getSessionTeam();
-        const roleHasData = roleTeam === 'tele' ? teleRawData.length > 0
-            : roleTeam === 'account' ? accRawData.length > 0
-            : roleTeam === 'mlm' ? mlmRawData.length > 0
-            : (teleRawData.length || accRawData.length || mlmRawData.length) > 0;
+        const roleHasData = hasDataForCurrentRole();
         document.getElementById('uploadWrapperGlobal').style.display = roleHasData ? 'none' : 'grid';
         if (!roleHasData) {
             document.getElementById('dashboardWorkspace').style.display = 'none';
             document.getElementById('processButtonContainer').style.display = 'none';
+            document.getElementById('btnReupload').style.display = 'none';
+            document.getElementById('btnBackToDashboard').style.display = 'none';
+            document.getElementById('btnInitFeedback').style.display = 'none';
         }
 
         // اگر داده‌ی فرم همین تیم بازیابی شده ولی هنوز رندر نشده، داشبورد را بساز.
