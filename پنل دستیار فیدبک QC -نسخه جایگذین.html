@@ -57,6 +57,15 @@
         .tab-btn.active { background: var(--panel-soft); color: var(--brand); border-bottom: 2px solid var(--brand); }
         .tab-content { display: none; flex-direction: column; gap: 15px; }
         .tab-content.active { display: flex; }
+        body.mlm-data-only #kpiContainer,
+        body.mlm-data-only #dashboardTabsNav,
+        body.mlm-data-only #teamComparisonCard,
+        body.mlm-data-only #radarAnalysisCard,
+        body.mlm-data-only #criteriaBreakdownCard,
+        body.mlm-data-only #redlinesCard,
+        body.mlm-data-only #assistantSideColumn { display:none !important; }
+        body.mlm-data-only #analyticsMainGrid { grid-template-columns:1fr; }
+        body.mlm-data-only #leadLogFullWidthCard { width:100%; }
 
         .btn {
             background: var(--panel-soft); color: #fff; border: 1px solid var(--line);
@@ -505,7 +514,7 @@
             <input type="file" id="manualRecoveryInput" accept=".json" style="display:none;" onchange="manualImportRecovery(event)">
             <button class="btn" id="btnManualLoad" style="display:none;" onclick="document.getElementById('manualRecoveryInput').click()" title="بازیابی فایل ریکاوری دیتا (حالت سازگاری)"><i class="fa-solid fa-upload"></i> بازیابی دیتا</button>
             <button class="btn purple" id="btnInitFeedback" style="display:none;" onclick="openConfidentialGate()"><i class="fa-solid fa-lock"></i> جلسه بازخورد محرمانه</button>
-            <button class="btn danger" id="btnReupload" style="display: none;" onclick="location.reload()"><i class="fa-solid fa-rotate"></i> بارگذاری مجدد فایل‌ها</button>
+            <button class="btn gold" id="btnReupload" style="display: none;" onclick="resetAnalysisForNewFiles()"><i class="fa-solid fa-rotate"></i> ریست و شروع بررسی جدید</button>
             <button class="btn" id="themeToggleBtn" onclick="toggleTheme()" title="تغییر حالت نمایش"><i class="fa-solid fa-sun"></i> حالت روشن</button>
             <button class="btn" id="btnLogout" style="display: none;" onclick="doLogout()"><i class="fa-solid fa-right-from-bracket"></i> خروج</button>
         </div>
@@ -520,6 +529,7 @@
     </div>
 
     <div class="upload-grid" id="uploadWrapperGlobal" style="display: none;">
+        <div id="uploadValidationMessage" style="grid-column:1/-1; display:none; text-align:center; color:var(--warn); font-weight:700; padding:6px;"></div>
         <div class="upload-box" id="teleBox">
             <div style="font-size: 35px; color: var(--good); margin-bottom: 10px;"><i class="fa-solid fa-phone-volume"></i></div>
             <h2 style="font-size: 14px; margin-bottom: 5px; color:#fff;">۱. بارگذاری فایل فرم تله‌سلز (Telesales)</h2>
@@ -549,7 +559,7 @@
     </div>
     
     <div style="text-align: center; display: none;" id="processButtonContainer">
-        <button class="btn gold" style="padding: 12px 40px; font-size: 14px;" onclick="compileAndRenderDashboard()"><i class="fa-solid fa-calculator"></i> پردازش و رندر نهایی کارنامه‌ها</button>
+        <button class="btn gold" style="padding: 12px 40px; font-size: 14px;" onclick="compileAndRenderDashboard()"><i class="fa-solid fa-calculator"></i> دریافت و نمایش داده‌ها</button>
     </div>
 
     <div id="dashboardWorkspace" style="display: none; flex-direction: column; gap: 15px;">
@@ -568,7 +578,7 @@
             </div>
         </div>
 
-        <div class="kpi-container">
+        <div class="kpi-container" id="kpiContainer">
             <div class="kpi-card" id="kpiCombinedCard">
                 <div><p style="color: var(--ink-soft);">میانگین کل ترکیبی (تله + اکانت + MLM)</p><h3 class="kpi-value" id="kpiCombinedVal">0%</h3></div>
                 <i class="fa-solid fa-chart-line" style="color: var(--brand); font-size:20px;"></i>
@@ -591,18 +601,18 @@
             </div>
         </div>
 
-        <div class="tabs-nav">
+        <div class="tabs-nav" id="dashboardTabsNav">
             <button class="tab-btn active" onclick="switchTab('analyticsTab', this)"><i class="fa-solid fa-user-gear"></i> آنالیز پیشرفته و عارضه‌‌یابی ریز جزئیات</button>
             <button class="tab-btn" id="tabBtnLeaderboard" onclick="switchTab('leaderboardTab', this)"><i class="fa-solid fa-trophy"></i> جدول مقایسه توازن کل تیم</button>
-            <button class="tab-btn" onclick="switchTab('matrixTab', this)"><i class="fa-solid fa-border-all"></i> ماتریس خطای المان‌ها</button>
+            <button class="tab-btn" id="tabBtnMatrix" onclick="switchTab('matrixTab', this)"><i class="fa-solid fa-border-all"></i> ماتریس خطای المان‌ها</button>
         </div>
 
         <div id="analyticsTab" class="tab-content active">
-            <div class="main-grid">
+            <div class="main-grid" id="analyticsMainGrid">
                 
                 <div style="display: flex; flex-direction: column; gap: 15px;">
                     
-                    <div class="card">
+                    <div class="card" id="teamComparisonCard">
                         <div class="card-header">
                             <h2><i class="fa-solid fa-code-compare" style="color: var(--gold);"></i> موازنه مهارت کارشناس (مقایسه فرم‌های تله، اکانت و MLM)</h2>
                             <span id="comparisonStatusBadge" class="badge">درحال تحلیل...</span>
@@ -634,24 +644,24 @@
                         </div>
                     </div>
 
-                    <div class="card">
+                    <div class="card" id="radarAnalysisCard">
                         <div class="card-header">
                             <h2><i class="fa-solid fa-bullseye" style="color: var(--brand);"></i> نمودار عنکبوتی (رادار) تحلیل المان‌های هر فرم</h2>
                         </div>
                         <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:15px;">
-                            <div>
+                            <div id="teleRadarPanel">
                                 <h3 style="color:var(--good); font-size:12.5px; margin-bottom:8px; text-align:center;"><i class="fa-solid fa-phone"></i> فرم تله‌سلز</h3>
                                 <div style="position:relative; height:280px;">
                                     <canvas id="teleRadarChart"></canvas>
                                 </div>
                             </div>
-                            <div>
+                            <div id="accountRadarPanel">
                                 <h3 style="color:var(--purple); font-size:12.5px; margin-bottom:8px; text-align:center;"><i class="fa-solid fa-handshake"></i> فرم اکانت</h3>
                                 <div style="position:relative; height:280px;">
                                     <canvas id="accRadarChart"></canvas>
                                 </div>
                             </div>
-                            <div>
+                            <div id="mlmRadarPanel">
                                 <h3 style="color:var(--gold); font-size:12.5px; margin-bottom:8px; text-align:center;"><i class="fa-solid fa-network-wired"></i> فرم MLM</h3>
                                 <div style="position:relative; height:280px;">
                                     <canvas id="mlmRadarChart"></canvas>
@@ -660,27 +670,27 @@
                         </div>
                     </div>
 
-                    <div class="card">
+                    <div class="card" id="criteriaBreakdownCard">
                         <div class="card-header">
                             <h2><i class="fa-solid fa-chart-bar" style="color: var(--brand);"></i> ریز درصد تحقق موفقیت هر المان به تفکیک فرم تماس</h2>
                         </div>
                         <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:15px;">
-                            <div>
+                            <div id="teleBreakdownPanel">
                                 <h3 style="color:var(--good); font-size:12.5px; margin-bottom:8px; border-bottom:1px solid var(--line); padding-bottom:3px;"><i class="fa-solid fa-phone"></i> درصد المان‌های تله‌سلز</h3>
                                 <div id="teleCriteriaBreakdownContainer" style="display:flex; flex-direction:column; gap:5px; max-height:300px; overflow-y:auto;"></div>
                             </div>
-                            <div>
+                            <div id="accountBreakdownPanel">
                                 <h3 style="color:var(--purple); font-size:12.5px; margin-bottom:8px; border-bottom:1px solid var(--line); padding-bottom:3px;"><i class="fa-solid fa-handshake"></i> درصد المان‌های اکانت</h3>
                                 <div id="accCriteriaBreakdownContainer" style="display:flex; flex-direction:column; gap:5px; max-height:300px; overflow-y:auto;"></div>
                             </div>
-                            <div>
+                            <div id="mlmBreakdownPanel">
                                 <h3 style="color:var(--gold); font-size:12.5px; margin-bottom:8px; border-bottom:1px solid var(--line); padding-bottom:3px;"><i class="fa-solid fa-network-wired"></i> درصد المان‌های MLM</h3>
                                 <div id="mlmCriteriaBreakdownContainer" style="display:flex; flex-direction:column; gap:5px; max-height:300px; overflow-y:auto;"></div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="card" style="border: 1px solid var(--bad); background: rgba(239, 68, 68, 0.01);">
+                    <div class="card" id="redlinesCard" style="border: 1px solid var(--bad); background: rgba(239, 68, 68, 0.01);">
                         <div class="card-header" style="border-bottom-color: var(--bad);">
                             <h2 style="color: var(--bad);"><i class="fa-solid fa-triangle-exclamation fa-fade"></i> خطوط قرمز اختصاصی نقض‌شده (Red Lines + دلایل مکتوب)</h2>
                         </div>
@@ -689,7 +699,7 @@
 
                     <div class="card" id="leadLogFullWidthCard">
                         <div class="card-header">
-                            <h2><i class="fa-solid fa-list-check" style="color: var(--brand);"></i> لیست دقیق لاگ ارزیابی مکالمات با جزئیات کسر امتیاز</h2>
+                            <h2 id="leadLogTitle"><i class="fa-solid fa-list-check" style="color: var(--brand);"></i> لیست دقیق لاگ ارزیابی مکالمات با جزئیات کسر امتیاز</h2>
                         </div>
                         <div class="table-responsive">
                             <table>
@@ -713,7 +723,7 @@
 
                 </div>
 
-                <div style="display: flex; flex-direction: column; gap: 15px;">
+                <div id="assistantSideColumn" style="display: flex; flex-direction: column; gap: 15px;">
                     <div class="card" style="border-color: var(--purple); background: rgba(168, 85, 247, 0.02);">
                         <div class="card-header" style="border-bottom-color: rgba(168, 85, 247, 0.2);">
                             <h2 style="color: var(--purple);"><i class="fa-solid fa-wand-magic-sparkles"></i> عارضه‌‌یاب هوشمند و طبقه‌بندی سطوح مهارتی کارشناس</h2>
@@ -788,19 +798,19 @@
         </div>
 
         <div id="matrixTab" class="tab-content">
-            <div class="card">
+            <div class="card" id="teleMatrixCard">
                 <div class="card-header">
                     <h2><i class="fa-solid fa-border-all" style="color: var(--good);"></i> ماتریس درصد خطای المان‌های تله‌سلز ( نسبت کسر امتیاز صفر )</h2>
                 </div>
                 <div class="heatmap-scroll"><table class="heatmap-table" id="teleErrorMatrixTable"></table></div>
             </div>
-            <div class="card">
+            <div class="card" id="accountMatrixCard">
                 <div class="card-header">
                     <h2><i class="fa-solid fa-border-all" style="color: var(--purple);"></i> ماتریس درصد خطای المان‌های اکانت ( نسبت کسر امتیاز صفر )</h2>
                 </div>
                 <div class="heatmap-scroll"><table class="heatmap-table" id="accErrorMatrixTable"></table></div>
             </div>
-            <div class="card">
+            <div class="card" id="mlmMatrixCard">
                 <div class="card-header">
                     <h2><i class="fa-solid fa-border-all" style="color: var(--gold);"></i> ماتریس درصد خطای المان‌های MLM ( نسبت کسر امتیاز صفر )</h2>
                 </div>
@@ -891,18 +901,33 @@
         return isNaN(parsed) ? 0 : parsed;
     }
 
+    function parseQcDate(value) {
+        if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value;
+        if (typeof value === 'number' && value > 30000 && value < 60000) {
+            const excelDate = new Date((value - 25569) * 86400 * 1000);
+            return Number.isNaN(excelDate.getTime()) ? null : excelDate;
+        }
+        if (value === undefined || value === null || value === '' || value === 'نامشخص') return null;
+        const parsed = new Date(String(value).trim());
+        return Number.isNaN(parsed.getTime()) ? null : parsed;
+    }
+
     function formatDateDisplay(val) {
         if (!val || val === 'نامشخص') return 'نامشخص';
-        if (val instanceof Date) return val.toLocaleDateString('fa-IR');
-        let s = String(val).trim();
-        if (/^\d+(\.\d+)?$/.test(s)) {
-            let num = parseFloat(s);
-            if (num > 30000 && num < 60000) {
-                let d = new Date((num - 25569) * 86400 * 1000);
-                return d.toLocaleDateString('fa-IR');
-            }
-        }
-        return s.length > 10 ? s.substring(0, 10) : s;
+        const parsed = parseQcDate(val);
+        if (parsed) return parsed.toLocaleDateString('fa-IR', { year:'numeric', month:'long', day:'numeric' });
+        return String(val).trim();
+    }
+
+    function getRegistrationDatePeriod(records) {
+        const dates = (records || [])
+            .map(record => parseQcDate(record.registrationDateRaw ?? record.dateRaw))
+            .filter(Boolean)
+            .sort((a,b) => a.getTime() - b.getTime());
+        if (!dates.length) return '';
+        const first = formatDateDisplay(dates[0]);
+        const last = formatDateDisplay(dates[dates.length - 1]);
+        return first === last ? first : `${first} تا ${last}`;
     }
 
     /* ==========================================================================
@@ -986,6 +1011,7 @@
             setStorageBadge('پوشه دیتا: متصل', true);
             document.getElementById('btnConnectFolder').innerHTML = '<i class="fa-solid fa-folder-open"></i> پوشه دیتا متصل است';
             await loadRecovery();           // read existing data back from the folder
+            if (sessionRole) showUploadPage();
             await saveRecovery();           // ensure recovery.json exists
         } catch (e) {
             if (e && e.name !== 'AbortError') console.warn('Folder pick error', e);
@@ -1076,13 +1102,10 @@
             const file = await fh.getFile();
             const txt = await file.text();
             applyRecoveryObject(JSON.parse(txt));
-            // If we restored raw rows and the user is logged in, rebuild the dashboard automatically.
-            if ((teleRawData.length || accRawData.length || mlmRawData.length) && sessionRole) {
-                document.getElementById('teleStatusText').innerHTML = `<span style="color:var(--good);"><i class="fa-solid fa-clock-rotate-left"></i> ${teleRawData.length} رکورد بازیابی شد</span>`;
-                document.getElementById('accStatusText').innerHTML = `<span style="color:var(--purple);"><i class="fa-solid fa-clock-rotate-left"></i> ${accRawData.length} رکورد بازیابی شد</span>`;
-                document.getElementById('mlmStatusText').innerHTML = `<span style="color:var(--gold);"><i class="fa-solid fa-clock-rotate-left"></i> ${mlmRawData.length} رکورد بازیابی شد</span>`;
-                document.getElementById('processButtonContainer').style.display = 'block';
-                compileAndRenderDashboard();
+            // Keep restored files on the post-login upload page; the user explicitly starts calculation.
+            if (sessionRole) {
+                updateUploadStatuses();
+                checkUploadCompletion();
             }
         } catch (e) {
             // recovery.json not present yet -> first run with this folder. That's fine.
@@ -1105,11 +1128,8 @@
         reader.onload = () => {
             try {
                 applyRecoveryObject(JSON.parse(reader.result));
-                if ((teleRawData.length || accRawData.length || mlmRawData.length) && sessionRole) {
-                    document.getElementById('processButtonContainer').style.display = 'block';
-                    compileAndRenderDashboard();
-                }
-                alert('دیتا با موفقیت بازیابی شد.');
+                if (sessionRole) showUploadPage();
+                alert('دیتا با موفقیت بازیابی شد. برای مشاهده، «دریافت و نمایش داده‌ها» را بزنید.');
             } catch (e) { alert('فایل بازیابی نامعتبر است.'); }
         };
         reader.readAsText(f);
@@ -1307,10 +1327,17 @@
             let leadPhone = r['lead_phone'] || r['Lead Phone'] || 'نامشخص';
             let comment = r['QC comment'] || r['QC_comment'] || r['کامنت'] || '';
             
-            let date = r['action_date'] || r['form_created_date'] || 'نامشخص';
-            if (typeof date === 'number') {
-                date = new Date((date - 25569) * 86400 * 1000);
-            }
+            const findDateColumn = names => Object.keys(r).find(key => names.includes(key.trim().toLowerCase()));
+            const createdDateKey = findDateColumn(['form_created_date', 'form created date']);
+            const actionDateKey = findDateColumn(['action_date', 'action date']);
+            const createdDate = createdDateKey ? r[createdDateKey] : undefined;
+            const actionDate = actionDateKey ? r[actionDateKey] : undefined;
+            const registrationDate = createdDate ?? actionDate ?? 'نامشخص';
+            let date = type === 'mlm' ? registrationDate : (actionDate ?? createdDate ?? 'نامشخص');
+            if (typeof date === 'number') date = parseQcDate(date) || date;
+            const normalizedRegistrationDate = typeof registrationDate === 'number'
+                ? (parseQcDate(registrationDate) || registrationDate)
+                : registrationDate;
 
             let listeningTimeKey = Object.keys(r).find(k => {
                 let cleanK = k.trim().toLowerCase();
@@ -1341,6 +1368,7 @@
                 listeningTime: listeningTime,
                 qcComment: comment,
                 dateRaw: date,
+                registrationDateRaw: normalizedRegistrationDate,
                 formType: type,
                 elements: elements
             });
@@ -1348,14 +1376,161 @@
         return list;
     }
 
+    function getSessionTeam() {
+        if (sessionRole === 'tele_qc') return 'tele';
+        if (sessionRole === 'account_qc') return 'account';
+        if (sessionRole === 'mlm_bmpl_qc') return 'mlm';
+        return null;
+    }
+
+    function rawDataForTeam(team) {
+        if (team === 'tele') return teleRawData;
+        if (team === 'account') return accRawData;
+        if (team === 'mlm') return mlmRawData;
+        return [];
+    }
+
+    function hasDataForCurrentRole() {
+        const team = getSessionTeam();
+        return team ? rawDataForTeam(team).length > 0 : (teleRawData.length + accRawData.length + mlmRawData.length) > 0;
+    }
+
+    function updateUploadStatuses() {
+        const team = getSessionTeam();
+        const isAdmin = !team;
+        const statusConfig = [
+            ['tele', teleRawData, 'teleStatusText', 'var(--good)'],
+            ['account', accRawData, 'accStatusText', 'var(--purple)'],
+            ['mlm', mlmRawData, 'mlmStatusText', 'var(--gold)']
+        ];
+        statusConfig.forEach(([type, rows, id, color]) => {
+            const status = document.getElementById(id);
+            if (!status) return;
+            if (!isAdmin && team !== type) {
+                status.textContent = 'برای این دسترسی نمایش داده نمی‌شود';
+                return;
+            }
+            status.innerHTML = rows.length
+                ? `<span style="color:${color};"><i class="fa-solid fa-check-double"></i> ${rows.length.toLocaleString('fa-IR')} رکورد آماده پردازش است</span>`
+                : 'انتخاب نشده';
+        });
+    }
+
+    function showUploadPage() {
+        document.getElementById('uploadWrapperGlobal').style.display = 'grid';
+        document.getElementById('dashboardWorkspace').style.display = 'none';
+        document.getElementById('processButtonContainer').style.display = hasDataForCurrentRole() ? 'block' : 'none';
+        document.getElementById('btnReupload').style.display = 'none';
+        document.getElementById('btnInitFeedback').style.display = 'none';
+        applyRoleVisibility();
+        updateUploadStatuses();
+        checkUploadCompletion();
+    }
+
     function checkUploadCompletion() {
-        if(teleRawData.length > 0 || accRawData.length > 0 || mlmRawData.length > 0) {
-            document.getElementById('processButtonContainer').style.display = 'block';
+        const processable = hasDataForCurrentRole();
+        document.getElementById('processButtonContainer').style.display = processable ? 'block' : 'none';
+        const hint = document.getElementById('uploadValidationMessage');
+        if (hint) {
+            const team = getSessionTeam();
+            const labels = { tele: 'تله‌سلز', account: 'اکانت', mlm: 'MLM' };
+            if (team && !processable) {
+                hint.textContent = `برای این دسترسی، ابتدا فایل تیم ${labels[team]} را انتخاب کنید.`;
+                hint.style.display = 'block';
+            } else if (!team && !processable) {
+                hint.textContent = 'برای شروع، فایل ارزیابی حداقل یک تیم را انتخاب کنید.';
+                hint.style.display = 'block';
+            } else {
+                hint.textContent = '';
+                hint.style.display = 'none';
+            }
         }
+        updateUploadStatuses();
+    }
+
+    async function resetAnalysisForNewFiles() {
+        if (!confirm('با ریست، فایل‌های بارگذاری‌شده و همهٔ محاسبات این بررسی پاک می‌شوند. فایل‌های صوتی و یادداشت‌های پایدار حذف نمی‌شوند. ادامه می‌دهید؟')) return;
+
+        teleRawData = [];
+        accRawData = [];
+        mlmRawData = [];
+        combinedDataset = [];
+        allCombinedDataset = [];
+        globalRankedList = [];
+        allGlobalRankedList = [];
+        currentDisplayedRecords = [];
+        isPresentationModeActive = false;
+        presentationTargetExpert = '';
+        previousMonthlyScores = {};
+        previousMonthlyProfiles = {};
+        previousMonthLabel = '';
+
+        [teleRadarChartInstance, accRadarChartInstance, mlmRadarChartInstance,
+         mTeleChartInstance, mAccChartInstance, mMlmChartInstance, mMonthlyComparisonChartInstance]
+            .forEach(chart => { if (chart) chart.destroy(); });
+        teleRadarChartInstance = accRadarChartInstance = mlmRadarChartInstance = null;
+        mTeleChartInstance = mAccChartInstance = mMlmChartInstance = mMonthlyComparisonChartInstance = null;
+
+        ['teleFileInput', 'accFileInput', 'mlmFileInput'].forEach(id => { document.getElementById(id).value = ''; });
+        document.getElementById('expertSearchInput').value = '';
+        document.getElementById('leadSearchInput').value = '';
+        document.getElementById('expertSelect').innerHTML = '';
+        document.getElementById('expertSelect').value = '';
+        document.getElementById('gateExpertSelect').innerHTML = '';
+        document.getElementById('mReportPeriodInput').value = '';
+        document.getElementById('mPreviousScoreInput').value = '';
+        document.getElementById('mCustomNotesInput').value = '';
+        document.getElementById('previousScoresStatus').textContent = '';
+        document.getElementById('teleStatusText').textContent = 'انتخاب نشده';
+        document.getElementById('accStatusText').textContent = 'انتخاب نشده';
+        document.getElementById('mlmStatusText').textContent = 'انتخاب نشده';
+        document.getElementById('uploadValidationMessage').textContent = '';
+        document.getElementById('leadInspectorTableBody').innerHTML = '';
+        document.getElementById('leaderboardTableBody').innerHTML = '';
+        document.getElementById('teleErrorMatrixTable').innerHTML = '';
+        document.getElementById('accErrorMatrixTable').innerHTML = '';
+        document.getElementById('mlmErrorMatrixTable').innerHTML = '';
+        document.getElementById('voiceListContainer').innerHTML = '';
+        document.getElementById('expertRedlineList').innerHTML = '';
+        document.getElementById('liveSkillCategoriesZone').innerHTML = '';
+        document.getElementById('teleCriteriaBreakdownContainer').innerHTML = '';
+        document.getElementById('accCriteriaBreakdownContainer').innerHTML = '';
+        document.getElementById('mlmCriteriaBreakdownContainer').innerHTML = '';
+        document.getElementById('kpiCombinedVal').textContent = '0%';
+        document.getElementById('kpiTeleVal').textContent = '0%';
+        document.getElementById('kpiAccVal').textContent = '0%';
+        document.getElementById('kpiMlmVal').textContent = '0%';
+        document.getElementById('kpiRedlineVal').textContent = '۰ مورد';
+        ['cTeleAvg','cTeleCount','cTeleRed','cAccAvg','cAccCount','cAccRed','cMlmAvg','cMlmCount','cMlmRed']
+            .forEach(id => { const el=document.getElementById(id); if(el) el.textContent='۰'; });
+        document.getElementById('comparisonStatusBadge').textContent = 'در انتظار فایل جدید';
+        document.getElementById('comparisonDiagnosticText').textContent = 'پس از دریافت فایل، تحلیل نمایش داده می‌شود.';
+        document.getElementById('mPersianMonth').textContent = '-';
+        document.getElementById('mExpertName').textContent = '-';
+        document.getElementById('mCombinedScore').textContent = '-';
+        document.getElementById('mMonthlyElementsSummary').innerHTML = '';
+        document.getElementById('mMonthlyElementsComparison').innerHTML = '';
+        document.getElementById('mTeleDetailsZone').innerHTML = '';
+        document.getElementById('mAccDetailsZone').innerHTML = '';
+        document.getElementById('mMlmDetailsZone').innerHTML = '';
+        document.getElementById('minutesOverlayWindow').style.display = 'none';
+        document.getElementById('monthlyNoticeOverlay').style.display = 'none';
+        document.getElementById('presentationBanner').style.display = 'none';
+        await saveRecovery();
+        showUploadPage();
     }
 
     // COMPILE AND PREPARE INTERFACE
     function compileAndRenderDashboard() {
+        if (!hasDataForCurrentRole()) {
+            combinedDataset = [];
+            allCombinedDataset = [];
+            globalRankedList = [];
+            allGlobalRankedList = [];
+            currentDisplayedRecords = [];
+            showUploadPage();
+            return;
+        }
         combinedDataset = [...teleRawData, ...accRawData, ...mlmRawData];
         
         let grouped = {};
@@ -1414,7 +1589,7 @@
         allGlobalRankedList = [...globalRankedList];
 
         applyRoleFilter();
-
+        applyRoleVisibility();
         globalRankedList.sort((a,b) => b.combinedAvg - a.combinedAvg);
 
         // Reset Filter inputs and Populate options through search pipeline
@@ -1424,9 +1599,11 @@
         // Toggle UI Panels
         document.getElementById('uploadWrapperGlobal').style.display = 'none';
         document.getElementById('processButtonContainer').style.display = 'none';
+        document.getElementById('uploadValidationMessage').style.display = 'none';
         document.getElementById('dashboardWorkspace').style.display = 'flex';
         document.getElementById('btnReupload').style.display = 'inline-flex';
         document.getElementById('btnInitFeedback').style.display = 'inline-flex';
+        applyRoleVisibility();
 
         // Persist the freshly compiled raw data to the on-disk recovery file
         // so that next login restores everything without re-uploading.
@@ -1484,8 +1661,13 @@
         });
 
         currentDisplayedRecords = records;
+        if (sessionRole === 'mlm_bmpl_qc') {
+            // MLM access is intentionally a data-only view: no KPIs, charts, matrices, or cross-team analysis.
+            renderLeadsTableList(records);
+            return;
+        }
+
         renderTopKPIs(records);
-        
         let activeTarget = isPresentationModeActive ? presentationTargetExpert : selectedExpert;
         renderDetailedAnalyticsZone(records, activeTarget);
 
@@ -1801,7 +1983,7 @@
         records.forEach(r => {
             let tr = document.createElement('tr');
             let fails = [];
-            const linkedVoice = voiceForLead(r.expertName, r.leadPhone);
+            const linkedVoice = sessionRole === 'mlm_bmpl_qc' ? null : voiceForLead(r.expertName, r.leadPhone);
             let map = r.formType === 'tele' ? teleCriteriaMapping : (r.formType === 'mlm' ? mlmCriteriaMapping : accCriteriaMapping);
             Object.keys(r.elements).forEach(k => {
                 if(r.elements[k] === 0) fails.push(map[k]);
@@ -1809,7 +1991,7 @@
 
             tr.innerHTML = `
                 <td><code>${r.leadName}</code></td>
-                <td><div class="lead-voice-wrap" style="display:flex;align-items:center;gap:6px;"><code>${r.leadPhone}</code>${linkedVoice ? `<button class="btn success" style="padding:4px 7px;border-radius:50%;" title="پخش ویس این لید" onclick="event.stopPropagation();playVoice(decodeURIComponent('${encodeURIComponent(r.expertName)}'),'${linkedVoice.fileName}',this)"><i class="fa-solid fa-play"></i></button><audio preload="none" controls style="height:28px;width:120px;"></audio>` : `<button class="btn" disabled style="padding:4px 7px;border-radius:50%;" title="ویس منطبق با این شماره پیدا نشد"><i class="fa-solid fa-play"></i></button>`}</div></td>
+                <td><div class="lead-voice-wrap" style="display:flex;align-items:center;gap:6px;"><code>${r.leadPhone}</code>${sessionRole === 'mlm_bmpl_qc' ? '' : (linkedVoice ? `<button class="btn success" style="padding:4px 7px;border-radius:50%;" title="پخش ویس این لید" onclick="event.stopPropagation();playVoice(decodeURIComponent('${encodeURIComponent(r.expertName)}'),'${linkedVoice.fileName}',this)"><i class="fa-solid fa-play"></i></button><audio preload="none" controls style="height:28px;width:120px;"></audio>` : `<button class="btn" disabled style="padding:4px 7px;border-radius:50%;" title="ویس منطبق با این شماره پیدا نشد"><i class="fa-solid fa-play"></i></button>`)}</div></td>
                 <td><span class="badge" style="background:${r.formType==='tele'?'var(--good-soft)':(r.formType==='mlm'?'var(--warn-soft)':'var(--purple)')}">${r.formType==='tele'?'لید تله‌سلز':(r.formType==='mlm'?'لید MLM':'لید اکانت')}</span></td>
                 <td><b style="color:#fff;">${r.score}</b></td>
                 <td>${r.redline === 1 ? '<span class="badge bad">نقض خط قرمز</span>':'<span class="badge good">پاس شده</span>'}</td>
@@ -2276,7 +2458,8 @@
         const persianMonth = now.toLocaleDateString('fa-IR', {month: 'long'});
         const persianFullDate = now.toLocaleDateString('fa-IR', {year: 'numeric', month: 'long', day: 'numeric'});
         const periodInput = document.getElementById('mReportPeriodInput');
-        if (!periodInput.value.trim()) periodInput.value = persianMonth;
+        const reportRecords = combinedDataset.filter(record => record.expertName === ex);
+        periodInput.value = getRegistrationDatePeriod(reportRecords) || persianFullDate || persianMonth;
         document.getElementById('mPersianMonth').textContent = periodInput.value.trim();
         document.getElementById('mIssuanceDate').textContent = persianFullDate;
 
@@ -2696,7 +2879,7 @@
         const btn=document.getElementById('themeToggleBtn');
         if(btn) btn.innerHTML=light?'<i class="fa-solid fa-moon"></i> حالت تیره':'<i class="fa-solid fa-sun"></i> حالت روشن';
         try{localStorage.setItem('qc_theme',mode);}catch(e){}
-        if(currentDisplayedRecords.length) renderRadarCharts(currentDisplayedRecords);
+        if(currentDisplayedRecords.length && sessionRole !== 'mlm_bmpl_qc') renderRadarCharts(currentDisplayedRecords);
         if(document.getElementById('minutesOverlayWindow').style.display==='flex') {
             const ex=document.getElementById('mExpertName').textContent.trim();
             if(ex) renderMonthlyElementsComparison(ex,combinedDataset.filter(r=>r.expertName===ex));
@@ -2721,22 +2904,100 @@
     let allGlobalRankedList = [];
 
     function applyRoleFilter() {
-        if (!sessionRole || sessionRole === 'admin') {
+        const team = getSessionTeam();
+        if (!team) {
             combinedDataset = [...allCombinedDataset];
             globalRankedList = [...allGlobalRankedList];
             return;
         }
-        const allowedTeams = [];
-        if (sessionRole === 'tele_qc') allowedTeams.push('tele');
-        if (sessionRole === 'account_qc') allowedTeams.push('account');
-        if (sessionRole === 'mlm_bmpl_qc') allowedTeams.push('mlm', 'mlm_bmpl');
 
-        globalRankedList = allGlobalRankedList.filter(e => {
-            const teams = e.teams && e.teams.length ? e.teams : [e.team];
-            return teams.some(t => allowedTeams.includes(t));
+        // Filter records by the actual form type, not just the expert name.
+        // A person appearing in multiple teams must not expose those rows to another role.
+        combinedDataset = allCombinedDataset.filter(record => record.formType === team);
+        const redlinesByExpert = {};
+        combinedDataset.forEach(record => {
+            if (record.redline === 1) redlinesByExpert[record.expertName] = (redlinesByExpert[record.expertName] || 0) + 1;
         });
-        const allowedNames = new Set(globalRankedList.map(e => e.name));
-        combinedDataset = allCombinedDataset.filter(d => allowedNames.has(d.expertName));
+
+        const avgKey = { tele:'teleAvg', account:'accAvg', mlm:'mlmAvg' }[team];
+        const countKey = { tele:'teleCount', account:'accCount', mlm:'mlmCount' }[team];
+        globalRankedList = allGlobalRankedList
+            .filter(expert => Number(expert[countKey]) > 0)
+            .map(expert => ({
+                ...expert,
+                teleAvg: team === 'tele' ? expert.teleAvg : null,
+                accAvg: team === 'account' ? expert.accAvg : null,
+                mlmAvg: team === 'mlm' ? expert.mlmAvg : null,
+                combinedAvg: expert[avgKey] ?? 0,
+                teleCount: team === 'tele' ? expert.teleCount : 0,
+                accCount: team === 'account' ? expert.accCount : 0,
+                mlmCount: team === 'mlm' ? expert.mlmCount : 0,
+                redlines: redlinesByExpert[expert.name] || 0,
+                team,
+                teams: [team]
+            }))
+            .sort((a,b) => b.combinedAvg - a.combinedAvg);
+    }
+
+    function applyRoleVisibility() {
+        const team = getSessionTeam();
+        const isAdmin = !team;
+        const mlmOnly = team === 'mlm';
+        const available = {
+            tele: teleRawData.length > 0,
+            account: accRawData.length > 0,
+            mlm: mlmRawData.length > 0
+        };
+        const visibleTeamData = key => isAdmin ? available[key] : team === key && available[key];
+        const availableCount = Object.values(available).filter(Boolean).length;
+        const hasVisibleData = isAdmin ? availableCount > 0 : !!team && available[team];
+        const setDisplay = (id, show) => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = show ? '' : 'none';
+        };
+
+        document.body.classList.toggle('mlm-data-only', mlmOnly);
+        // The upload stage is shared, but each QC role sees its own team's file box; admin sees all.
+        setDisplay('teleBox', isAdmin || team === 'tele');
+        setDisplay('accBox', isAdmin || team === 'account');
+        setDisplay('mlmBox', isAdmin || team === 'mlm');
+        setDisplay('btnManualSave', isAdmin && !FS_SUPPORTED);
+        setDisplay('btnManualLoad', isAdmin && !FS_SUPPORTED);
+
+        setDisplay('kpiContainer', hasVisibleData && !mlmOnly);
+        setDisplay('kpiCombinedCard', isAdmin && hasVisibleData);
+        setDisplay('kpiTeleCard', visibleTeamData('tele') && !mlmOnly);
+        setDisplay('kpiAccCard', visibleTeamData('account') && !mlmOnly);
+        setDisplay('kpiMlmCard', visibleTeamData('mlm') && !mlmOnly);
+        setDisplay('kpiRedlineCard', hasVisibleData && !mlmOnly);
+
+        setDisplay('teamComparisonCard', isAdmin && availableCount > 1);
+        setDisplay('radarAnalysisCard', hasVisibleData && !mlmOnly);
+        setDisplay('criteriaBreakdownCard', hasVisibleData && !mlmOnly);
+        setDisplay('teleRadarPanel', visibleTeamData('tele') && !mlmOnly);
+        setDisplay('accountRadarPanel', visibleTeamData('account') && !mlmOnly);
+        setDisplay('mlmRadarPanel', visibleTeamData('mlm') && !mlmOnly);
+        setDisplay('teleBreakdownPanel', visibleTeamData('tele') && !mlmOnly);
+        setDisplay('accountBreakdownPanel', visibleTeamData('account') && !mlmOnly);
+        setDisplay('mlmBreakdownPanel', visibleTeamData('mlm') && !mlmOnly);
+        setDisplay('redlinesCard', hasVisibleData && !mlmOnly);
+        setDisplay('assistantSideColumn', hasVisibleData && !mlmOnly);
+        setDisplay('leadLogFullWidthCard', hasVisibleData);
+        const leadLogTitle = document.getElementById('leadLogTitle');
+        if (leadLogTitle) leadLogTitle.innerHTML = mlmOnly
+            ? '<i class="fa-solid fa-network-wired" style="color:var(--gold);"></i> داده‌های ثبت‌شدهٔ فرم MLM'
+            : '<i class="fa-solid fa-list-check" style="color:var(--brand);"></i> لیست دقیق لاگ ارزیابی مکالمات با جزئیات کسر امتیاز';
+
+        const showTeamNavigation = hasVisibleData && !mlmOnly;
+        setDisplay('dashboardTabsNav', showTeamNavigation);
+        setDisplay('tabBtnLeaderboard', showTeamNavigation);
+        setDisplay('leaderboardTab', showTeamNavigation);
+        setDisplay('tabBtnMatrix', showTeamNavigation);
+        setDisplay('matrixTab', showTeamNavigation);
+        setDisplay('teleMatrixCard', showTeamNavigation && visibleTeamData('tele'));
+        setDisplay('accountMatrixCard', showTeamNavigation && visibleTeamData('account'));
+        setDisplay('mlmMatrixCard', showTeamNavigation && visibleTeamData('mlm'));
+        setDisplay('btnInitFeedback', hasVisibleData && !mlmOnly);
     }
 
     function togglePasswordVisibility() {
@@ -2774,12 +3035,8 @@
         badge.textContent = roleDef.label;
         badge.style.display = 'inline-block';
         document.getElementById('btnLogout').style.display = 'inline-flex';
-        document.getElementById('uploadWrapperGlobal').style.display = 'grid';
-
-        // اگر داده پیش‌تر بازیابی شده ولی هنوز رندر نشده است، همین حالا رندر کن.
-        if ((teleRawData.length || accRawData.length || mlmRawData.length) && !combinedDataset.length) {
-            compileAndRenderDashboard();
-        }
+        // Every successful login starts on the upload/review page. Restored files wait for an explicit process click.
+        showUploadPage();
         submit.disabled = false;
         submit.innerHTML = 'ورود به سیستم';
     }
@@ -2828,7 +3085,7 @@
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(id).classList.add('active'); btn.classList.add('active');
-        if (id === 'analyticsTab') {
+        if (id === 'analyticsTab' && sessionRole !== 'mlm_bmpl_qc') {
             renderRadarCharts(currentDisplayedRecords);
         }
     }
