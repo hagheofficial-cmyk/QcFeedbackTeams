@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سیستم ارشد پایش دپارتمان تله‌سلز و اکانت بیمه‌بازار</title>
+    <title>سیستم ارشد پایش دپارتمان تله‌سلز، اکانت و MLM بیمه‌بازار</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -109,7 +109,7 @@
         body.light-mode #monthlyNoticeOverlay .minutes-box { box-shadow:0 24px 60px rgba(30,64,100,.22); }
         @media(max-width:850px){.notice-settings{grid-template-columns:1fr !important}.notice-toolbar{align-items:flex-start !important}.notice-toolbar .feedback-actions{width:100%}.notice-column-panel{align-items:flex-start !important}}
 
-        .upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
+        .upload-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 15px; margin-top: 10px; }
         .upload-box {
             background: var(--panel); border: 2px dashed var(--line); border-radius: 12px;
             padding: 30px 20px; text-align: center; transition: all 0.3s;
@@ -147,7 +147,7 @@
         }
         .card-header h2 { font-size: 14px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; }
 
-        .comparison-holder { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+        .comparison-holder { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 12px; }
         .comp-box { background: #162238; border-radius: 8px; padding: 12px; border: 1px solid var(--line); }
         .comp-title { font-size: 13px; font-weight: bold; padding-bottom: 6px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
 
@@ -310,14 +310,20 @@
                 <tr id="mTeamScoresRow">
                     <td id="mTeleScoreLabel" style="padding: 8px; border: 1px solid var(--line); background: #0b111e; font-weight: bold; color: var(--brand);">میانگین تله‌سلز:</td>
                     <td id="mTeleScoreCell" style="padding: 8px; border: 1px solid var(--line); color: #fff;"><span id="mTeleScore">-</span></td>
-                    <td style="padding: 8px; border: 1px solid var(--line); background: #0b111e; font-weight: bold; color: var(--brand);">میانگین اکانت:</td>
+                    <td id="mAccScoreLabel" style="padding: 8px; border: 1px solid var(--line); background: #0b111e; font-weight: bold; color: var(--brand);">میانگین اکانت:</td>
                     <td style="padding: 8px; border: 1px solid var(--line); color: #fff;" id="mAccScore">-</td>
                 </tr>
                 <tr id="mTeamCountsRow">
                     <td id="mTeleCountLabel" style="padding: 8px; border: 1px solid var(--line); background: #0b111e; font-weight: bold; color: var(--brand);">تعداد شنود تله‌سلز:</td>
                     <td id="mTeleCountCell" style="padding: 8px; border: 1px solid var(--line); color: #fff; font-weight: bold;"><span id="mTeleCountCalls">-</span></td>
-                    <td style="padding: 8px; border: 1px solid var(--line); background: #0b111e; font-weight: bold; color: var(--brand);">تعداد شنود اکانت:</td>
+                    <td id="mAccCountLabel" style="padding: 8px; border: 1px solid var(--line); background: #0b111e; font-weight: bold; color: var(--brand);">تعداد شنود اکانت:</td>
                     <td style="padding: 8px; border: 1px solid var(--line); color: #fff; font-weight: bold;" id="mAccCountCalls">-</td>
+                </tr>
+                <tr id="mMlmScoresRow">
+                    <td style="padding: 8px; border: 1px solid var(--line); background: #0b111e; font-weight: bold; color: var(--brand);">میانگین MLM:</td>
+                    <td style="padding: 8px; border: 1px solid var(--line); color: #fff;"><span id="mMlmScore">-</span></td>
+                    <td style="padding: 8px; border: 1px solid var(--line); background: #0b111e; font-weight: bold; color: var(--brand);">تعداد شنود MLM:</td>
+                    <td style="padding: 8px; border: 1px solid var(--line); color: #fff; font-weight: bold;" id="mMlmCountCalls">-</td>
                 </tr>
                 <tr>
                     <td style="padding: 8px; border: 1px solid var(--line); background: #0b111e; font-weight: bold; color: var(--brand);">کل تماس‌های ارزیابی:</td>
@@ -365,7 +371,7 @@
                 </div>
             </div>
 
-            <div style="margin-bottom: 15px;">
+            <div style="margin-bottom: 15px;" id="mAccChartSection">
                 <h4 style="font-size: 13px; border-bottom: 2px solid var(--line); padding-bottom: 6px; color: var(--purple); font-weight: bold; margin-bottom: 8px;"><i class="fa-solid fa-handshake"></i> نمودار تحلیل المان‌های اکانت</h4>
                 <div style="background: #0b111e; border: 1px solid var(--line); border-radius: 8px; padding: 10px;">
                     <div style="position: relative; height: 320px;">
@@ -374,14 +380,28 @@
                 </div>
             </div>
 
+            <div style="margin-bottom: 15px;" id="mMlmChartSection">
+                <h4 style="font-size: 13px; border-bottom: 2px solid var(--line); padding-bottom: 6px; color: var(--gold); font-weight: bold; margin-bottom: 8px;"><i class="fa-solid fa-network-wired"></i> نمودار تحلیل المان‌های MLM</h4>
+                <div style="background: #0b111e; border: 1px solid var(--line); border-radius: 8px; padding: 10px;">
+                    <div style="position: relative; height: 300px;">
+                        <canvas id="mMlmAllChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
             <div style="margin-bottom: 12px;" id="mTeleDetailsSection">
-                <h4 style="font-size: 12.5px; border-bottom: 2px solid var(--line); padding-bottom: 6px; color: var(--good); font-weight: bold;"><i class="fa-solid fa-phone"></i> ۱. آنالیز جزئیات فرم تله‌سلز (ارزیابی لید تله)</h4>
+                <h4 id="mTeleDetailsHeading" style="font-size: 12.5px; border-bottom: 2px solid var(--line); padding-bottom: 6px; color: var(--good); font-weight: bold;"><i class="fa-solid fa-phone"></i> ۱. آنالیز جزئیات فرم تله‌سلز (ارزیابی لید تله)</h4>
                 <div id="mTeleDetailsZone" style="padding: 8px; font-size: 11.5px; color: var(--ink-soft); line-height: 1.6;">-</div>
             </div>
 
-            <div style="margin-bottom: 12px;">
+            <div style="margin-bottom: 12px;" id="mAccDetailsSection">
                 <h4 style="font-size: 12.5px; border-bottom: 2px solid var(--line); padding-bottom: 6px; color: var(--purple); font-weight: bold;" id="mAccDetailsHeading"><i class="fa-solid fa-handshake"></i> ۲. آنالیز جزئیات فرم اکانت (ارزیابی لید اکانت)</h4>
                 <div id="mAccDetailsZone" style="padding: 8px; font-size: 11.5px; color: var(--ink-soft); line-height: 1.6;">-</div>
+            </div>
+
+            <div style="margin-bottom: 12px;" id="mMlmDetailsSection">
+                <h4 style="font-size: 12.5px; border-bottom: 2px solid var(--line); padding-bottom: 6px; color: var(--gold); font-weight: bold;" id="mMlmDetailsHeading"><i class="fa-solid fa-network-wired"></i> ۳. آنالیز جزئیات فرم MLM (ارزیابی لید MLM)</h4>
+                <div id="mMlmDetailsZone" style="padding: 8px; font-size: 11.5px; color: var(--ink-soft); line-height: 1.6;">-</div>
             </div>
 
             <div style="margin-bottom: 12px;">
@@ -474,8 +494,8 @@
 <div class="container">
     <header class="dashboard-header">
         <div>
-            <h1><i class="fa-solid fa-burst" style="color: var(--brand);"></i> سیستم تخصصی پایش دوگانه تله‌سلز و اکانت (بیمه‌بازار)</h1>
-            <p style="color: var(--ink-soft); font-size:11.5px; margin-top:2px;">محاسبه واقعی میانگین دو فرم، تفکیک مستقل المان‌ها و خطوط قرمز هر تیم</p>
+            <h1><i class="fa-solid fa-burst" style="color: var(--brand);"></i> سیستم تخصصی پایش سه‌گانه تله‌سلز، اکانت و MLM (بیمه‌بازار)</h1>
+            <p style="color: var(--ink-soft); font-size:11.5px; margin-top:2px;">محاسبه واقعی میانگین سه فرم، تفکیک مستقل المان‌ها و خطوط قرمز هر تیم</p>
         </div>
         <div class="header-actions">
             <span id="userRoleBadge" style="display:none; background: rgba(56,189,248,0.1); color: var(--brand); padding: 4px 10px; border-radius: 5px; font-size: 11px; font-weight: bold; border: 1px solid var(--brand);"></span>
@@ -517,6 +537,15 @@
             <input type="file" id="accFileInput" accept=".xlsx, .xls, .csv" style="display: none;">
             <div id="accStatusText" style="margin-top: 10px; font-weight: bold; color: var(--ink-soft);">انتخاب نشده</div>
         </div>
+
+        <div class="upload-box" id="mlmBox">
+            <div style="font-size: 35px; color: var(--gold); margin-bottom: 10px;"><i class="fa-solid fa-network-wired"></i></div>
+            <h2 style="font-size: 14px; margin-bottom: 5px; color:#fff;">۳. بارگذاری فایل فرم MLM</h2>
+            <p style="color: var(--ink-soft); font-size:11.5px; margin-bottom: 15px;">فایل اکسل یا CSV حاوی ستون‌های ارزیابی لیدهای تیم MLM</p>
+            <button class="btn gold" onclick="document.getElementById('mlmFileInput').click()"><i class="fa-solid fa-file-excel"></i> انتخاب فایل MLM</button>
+            <input type="file" id="mlmFileInput" accept=".xlsx, .xls, .csv" style="display: none;">
+            <div id="mlmStatusText" style="margin-top: 10px; font-weight: bold; color: var(--ink-soft);">انتخاب نشده</div>
+        </div>
     </div>
     
     <div style="text-align: center; display: none;" id="processButtonContainer">
@@ -541,7 +570,7 @@
 
         <div class="kpi-container">
             <div class="kpi-card" id="kpiCombinedCard">
-                <div><p style="color: var(--ink-soft);">میانگین کل ترکیبی (تله + اکانت)</p><h3 class="kpi-value" id="kpiCombinedVal">0%</h3></div>
+                <div><p style="color: var(--ink-soft);">میانگین کل ترکیبی (تله + اکانت + MLM)</p><h3 class="kpi-value" id="kpiCombinedVal">0%</h3></div>
                 <i class="fa-solid fa-chart-line" style="color: var(--brand); font-size:20px;"></i>
             </div>
             <div class="kpi-card good" id="kpiTeleCard">
@@ -551,6 +580,10 @@
             <div class="kpi-card purple" id="kpiAccCard" style="border-right-color: var(--purple);">
                 <div><p style="color: var(--ink-soft);">میانگین کل فرم اکانت</p><h3 class="kpi-value" id="kpiAccVal">0%</h3></div>
                 <i class="fa-solid fa-handshake" style="font-size:20px;"></i>
+            </div>
+            <div class="kpi-card" id="kpiMlmCard" style="border-right-color: var(--gold);">
+                <div><p style="color: var(--ink-soft);">میانگین کل فرم MLM</p><h3 class="kpi-value" id="kpiMlmVal">0%</h3></div>
+                <i class="fa-solid fa-network-wired" style="font-size:20px;"></i>
             </div>
             <div class="kpi-card bad" id="kpiRedlineCard">
                 <div><p style="color: var(--ink-soft);">کل نقض خط قرمز ردیابی‌شده</p><h3 class="kpi-value" id="kpiRedlineVal">۰ مورد</h3></div>
@@ -571,7 +604,7 @@
                     
                     <div class="card">
                         <div class="card-header">
-                            <h2><i class="fa-solid fa-code-compare" style="color: var(--gold);"></i> موازنه مهارت کارشناس (مقایسه فرم تله در برابر اکانت)</h2>
+                            <h2><i class="fa-solid fa-code-compare" style="color: var(--gold);"></i> موازنه مهارت کارشناس (مقایسه فرم‌های تله، اکانت و MLM)</h2>
                             <span id="comparisonStatusBadge" class="badge">درحال تحلیل...</span>
                         </div>
                         
@@ -588,6 +621,12 @@
                                 <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>تعداد تماس ارزیابی شده:</span><b id="cAccCount">۰ تماس</b></div>
                                 <div style="display:flex; justify-content:space-between;"><span>موارد ردلاین اکانت:</span><b id="cAccRed" style="color:var(--bad);">۰ مورد</b></div>
                             </div>
+                            <div class="comp-box" style="border-right: 3px solid var(--gold);">
+                                <div class="comp-title" style="color: var(--gold);"><i class="fa-solid fa-network-wired"></i> نمره و جزئیات MLM</div>
+                                <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>میانگین نمره لید MLM:</span><b id="cMlmAvg">0%</b></div>
+                                <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>تعداد تماس ارزیابی شده:</span><b id="cMlmCount">۰ تماس</b></div>
+                                <div style="display:flex; justify-content:space-between;"><span>موارد ردلاین MLM:</span><b id="cMlmRed" style="color:var(--bad);">۰ مورد</b></div>
+                            </div>
                         </div>
 
                         <div style="background: rgba(245,158,11,0.05); border: 1px dashed var(--warn); padding: 10px; border-radius: 6px; font-size:12px; line-height: 1.6;" id="comparisonDiagnosticText">
@@ -599,7 +638,7 @@
                         <div class="card-header">
                             <h2><i class="fa-solid fa-bullseye" style="color: var(--brand);"></i> نمودار عنکبوتی (رادار) تحلیل المان‌های هر فرم</h2>
                         </div>
-                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:15px;">
                             <div>
                                 <h3 style="color:var(--good); font-size:12.5px; margin-bottom:8px; text-align:center;"><i class="fa-solid fa-phone"></i> فرم تله‌سلز</h3>
                                 <div style="position:relative; height:280px;">
@@ -612,6 +651,12 @@
                                     <canvas id="accRadarChart"></canvas>
                                 </div>
                             </div>
+                            <div>
+                                <h3 style="color:var(--gold); font-size:12.5px; margin-bottom:8px; text-align:center;"><i class="fa-solid fa-network-wired"></i> فرم MLM</h3>
+                                <div style="position:relative; height:280px;">
+                                    <canvas id="mlmRadarChart"></canvas>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -619,7 +664,7 @@
                         <div class="card-header">
                             <h2><i class="fa-solid fa-chart-bar" style="color: var(--brand);"></i> ریز درصد تحقق موفقیت هر المان به تفکیک فرم تماس</h2>
                         </div>
-                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:15px;">
                             <div>
                                 <h3 style="color:var(--good); font-size:12.5px; margin-bottom:8px; border-bottom:1px solid var(--line); padding-bottom:3px;"><i class="fa-solid fa-phone"></i> درصد المان‌های تله‌سلز</h3>
                                 <div id="teleCriteriaBreakdownContainer" style="display:flex; flex-direction:column; gap:5px; max-height:300px; overflow-y:auto;"></div>
@@ -627,6 +672,10 @@
                             <div>
                                 <h3 style="color:var(--purple); font-size:12.5px; margin-bottom:8px; border-bottom:1px solid var(--line); padding-bottom:3px;"><i class="fa-solid fa-handshake"></i> درصد المان‌های اکانت</h3>
                                 <div id="accCriteriaBreakdownContainer" style="display:flex; flex-direction:column; gap:5px; max-height:300px; overflow-y:auto;"></div>
+                            </div>
+                            <div>
+                                <h3 style="color:var(--gold); font-size:12.5px; margin-bottom:8px; border-bottom:1px solid var(--line); padding-bottom:3px;"><i class="fa-solid fa-network-wired"></i> درصد المان‌های MLM</h3>
+                                <div id="mlmCriteriaBreakdownContainer" style="display:flex; flex-direction:column; gap:5px; max-height:300px; overflow-y:auto;"></div>
                             </div>
                         </div>
                     </div>
@@ -715,7 +764,7 @@
         <div id="leaderboardTab" class="tab-content">
             <div class="card">
                 <div class="card-header">
-                    <h2><i class="fa-solid fa-ranking-star" style="color: var(--brand);"></i> جدول رتبه‌بندی نهایی کل کارشناسان تله‌سلز بر اساس میانگین واقعی دو فرم</h2>
+                    <h2><i class="fa-solid fa-ranking-star" style="color: var(--brand);"></i> جدول رتبه‌بندی نهایی کل کارشناسان بر اساس میانگین واقعی هر سه فرم (تله‌سلز، اکانت و MLM)</h2>
                 </div>
                 <div class="table-responsive">
                     <table>
@@ -726,6 +775,7 @@
                                 <th>میانگین ترکیبی نهایی</th>
                                 <th>میانگین لید تله‌سلز</th>
                                 <th>میانگین لید اکانت</th>
+                                <th>میانگین MLM</th>
                                 <th>تعداد کل ارزیابی‌ها</th>
                                 <th>کل ردلاین‌ها</th>
                                 <th>وضعیت توازن</th>
@@ -749,6 +799,12 @@
                     <h2><i class="fa-solid fa-border-all" style="color: var(--purple);"></i> ماتریس درصد خطای المان‌های اکانت ( نسبت کسر امتیاز صفر )</h2>
                 </div>
                 <div class="heatmap-scroll"><table class="heatmap-table" id="accErrorMatrixTable"></table></div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-border-all" style="color: var(--gold);"></i> ماتریس درصد خطای المان‌های MLM ( نسبت کسر امتیاز صفر )</h2>
+                </div>
+                <div class="heatmap-scroll"><table class="heatmap-table" id="mlmErrorMatrixTable"></table></div>
             </div>
         </div>
 
@@ -792,9 +848,24 @@
         "Final_call_analysis": "تحلیل نهایی در CRM"
     };
 
+    const mlmCriteriaMapping = {
+        "Call_opening_quality": "شروع مناسب مکالمه",
+        "agent_introduction_and_role": "معرفی خود و اعلام واحد",
+        "user_identify_verification": "احراز هویت نماینده",
+        "pre_offer_needs_assessment": "نیازسنجی قبل از ارائه پیشنهاد",
+        "professional_concern_handling": "مدیریت حرفه‌ای نگرانی‌ها و اعتراضات",
+        "effective_negotiation": "تعامل و مذاکره مؤثر",
+        "link_establishment": "ایجاد یا تثبیت راه ارتباطی",
+        "professional_tone": "ادبیات حرفه‌ای",
+        "courteous_closure": "پایان‌بندی محترمانه تماس",
+        "call_action_logging": "ثبت درست اکشن تماس",
+        "note": "یادداشت کامل"
+    };
+
     // RUNTIME DATASETS
     let teleRawData = [];
     let accRawData = [];
+    let mlmRawData = [];
     let combinedDataset = [];
     let globalRankedList = [];
     // storedActions is now persisted to the on-disk recovery file (NOT browser cache).
@@ -809,6 +880,7 @@
     let currentDisplayedRecords = [];
     let teleRadarChartInstance = null;
     let accRadarChartInstance = null;
+    let mlmRadarChartInstance = null;
 
     // SAFE CLEAN PARSER (Strips triple quotes and stringified numbers perfectly)
     function cleanAndParseValue(val, isScore = false) {
@@ -964,13 +1036,14 @@
     // ---- recovery.json read/write ----
     function buildRecoveryObject() {
         return {
-            version: 7,
+            version: 8,
             savedAt: new Date().toISOString(),
             storedActions: storedActions,
             voiceMeta: voiceMeta,
             monthlyNotices: monthlyNotices,
             teleRawData: teleRawData,
-            accRawData: accRawData
+            accRawData: accRawData,
+            mlmRawData: mlmRawData
         };
     }
 
@@ -993,6 +1066,7 @@
         monthlyNotices = obj.monthlyNotices || {};
         if (Array.isArray(obj.teleRawData)) teleRawData = obj.teleRawData;
         if (Array.isArray(obj.accRawData)) accRawData = obj.accRawData;
+        if (Array.isArray(obj.mlmRawData)) mlmRawData = obj.mlmRawData;
     }
 
     async function loadRecovery() {
@@ -1003,9 +1077,10 @@
             const txt = await file.text();
             applyRecoveryObject(JSON.parse(txt));
             // If we restored raw rows and the user is logged in, rebuild the dashboard automatically.
-            if ((teleRawData.length || accRawData.length) && sessionRole) {
+            if ((teleRawData.length || accRawData.length || mlmRawData.length) && sessionRole) {
                 document.getElementById('teleStatusText').innerHTML = `<span style="color:var(--good);"><i class="fa-solid fa-clock-rotate-left"></i> ${teleRawData.length} رکورد بازیابی شد</span>`;
                 document.getElementById('accStatusText').innerHTML = `<span style="color:var(--purple);"><i class="fa-solid fa-clock-rotate-left"></i> ${accRawData.length} رکورد بازیابی شد</span>`;
+                document.getElementById('mlmStatusText').innerHTML = `<span style="color:var(--gold);"><i class="fa-solid fa-clock-rotate-left"></i> ${mlmRawData.length} رکورد بازیابی شد</span>`;
                 document.getElementById('processButtonContainer').style.display = 'block';
                 compileAndRenderDashboard();
             }
@@ -1030,7 +1105,7 @@
         reader.onload = () => {
             try {
                 applyRecoveryObject(JSON.parse(reader.result));
-                if ((teleRawData.length || accRawData.length) && sessionRole) {
+                if ((teleRawData.length || accRawData.length || mlmRawData.length) && sessionRole) {
                     document.getElementById('processButtonContainer').style.display = 'block';
                     compileAndRenderDashboard();
                 }
@@ -1190,9 +1265,25 @@
         reader.readAsArrayBuffer(file);
     });
 
+    // MLM FILE LOADER
+    document.getElementById('mlmFileInput').addEventListener('change', function(e) {
+        let file = e.target.files[0];
+        if(!file) return;
+        let reader = new FileReader();
+        reader.onload = function(e) {
+            let data = new Uint8Array(reader.result);
+            let workbook = XLSX.read(data, {type: 'array'});
+            let rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+            mlmRawData = parseRows(rows, 'mlm');
+            document.getElementById('mlmStatusText').innerHTML = `<span style="color:var(--gold);"><i class="fa-solid fa-check-double"></i> ${mlmRawData.length} رکورد بارگذاری شد</span>`;
+            checkUploadCompletion();
+        };
+        reader.readAsArrayBuffer(file);
+    });
+
     function parseRows(rows, type) {
         let list = [];
-        let mappingRef = type === 'tele' ? teleCriteriaMapping : accCriteriaMapping;
+        let mappingRef = type === 'tele' ? teleCriteriaMapping : (type === 'mlm' ? mlmCriteriaMapping : accCriteriaMapping);
         
         rows.forEach(r => {
             let nameKey = Object.keys(r).find(k => k.trim().toLowerCase() === 'tele_expert_name');
@@ -1258,22 +1349,24 @@
     }
 
     function checkUploadCompletion() {
-        if(teleRawData.length > 0 || accRawData.length > 0) {
+        if(teleRawData.length > 0 || accRawData.length > 0 || mlmRawData.length > 0) {
             document.getElementById('processButtonContainer').style.display = 'block';
         }
     }
 
     // COMPILE AND PREPARE INTERFACE
     function compileAndRenderDashboard() {
-        combinedDataset = [...teleRawData, ...accRawData];
+        combinedDataset = [...teleRawData, ...accRawData, ...mlmRawData];
         
         let grouped = {};
         combinedDataset.forEach(d => {
             if(!grouped[d.expertName]) {
-                grouped[d.expertName] = { name: d.expertName, teleScores: [], accScores: [], redlines: 0 };
+                grouped[d.expertName] = { name: d.expertName, teleScores: [], accScores: [], mlmScores: [], redlines: 0 };
             }
             if(d.formType === 'tele') {
                 grouped[d.expertName].teleScores.push(d.score);
+            } else if(d.formType === 'mlm') {
+                grouped[d.expertName].mlmScores.push(d.score);
             } else {
                 grouped[d.expertName].accScores.push(d.score);
             }
@@ -1287,29 +1380,31 @@
             let item = grouped[k];
             let tAvg = item.teleScores.length ? (item.teleScores.reduce((sum, val) => sum + val, 0) / item.teleScores.length) : null;
             let aAvg = item.accScores.length ? (item.accScores.reduce((sum, val) => sum + val, 0) / item.accScores.length) : null;
+            let mAvg = item.mlmScores.length ? (item.mlmScores.reduce((sum, val) => sum + val, 0) / item.mlmScores.length) : null;
             
             let finalCombined = 0;
-            if(tAvg !== null && aAvg !== null) {
-                finalCombined = (tAvg + aAvg) / 2;
-            } else {
-                finalCombined = tAvg !== null ? tAvg : (aAvg !== null ? aAvg : 0);
+            let availableAvgs = [tAvg, aAvg, mAvg].filter(v => v !== null);
+            if(availableAvgs.length) {
+                finalCombined = availableAvgs.reduce((sum, val) => sum + val, 0) / availableAvgs.length;
             }
 
             globalRankedList.push({
                 name: item.name,
                 teleAvg: tAvg,
                 accAvg: aAvg,
+                mlmAvg: mAvg,
                 combinedAvg: finalCombined,
                 teleCount: item.teleScores.length,
                 accCount: item.accScores.length,
+                mlmCount: item.mlmScores.length,
                 redlines: item.redlines
             });
         });
 
         globalRankedList.forEach(item => {
-            // قانون تیم‌بندی: فقط فرم اکانت => تیم اکانت؛ فرم تله (با یا بدون اکانت) => تیم تله.
-            // بنابراین کارشناس دارای هر دو فرم فقط در دسترسی تیم تله دیده می‌شود.
-            if (item.teleCount > 0) item.team = 'tele';
+            // قانون تیم‌بندی: کارشناسِ صرفاً MLM => تیم mlm؛ در غیر این صورت فرم تله (با یا بدون اکانت) => تیم تله، فقط اکانت => تیم اکانت.
+            if (item.mlmCount > 0 && item.teleCount === 0 && item.accCount === 0) item.team = 'mlm';
+            else if (item.teleCount > 0) item.team = 'tele';
             else if (item.accCount > 0) item.team = 'account';
             else item.team = 'mlm_bmpl';
             item.teams = [item.team];
@@ -1403,6 +1498,7 @@
     function renderTopKPIs(records) {
         let teles = records.filter(r => r.formType === 'tele');
         let accs = records.filter(r => r.formType === 'account');
+        let mlms = records.filter(r => r.formType === 'mlm');
 
         let tSum = teles.reduce((sum, r) => sum + r.score, 0);
         let tAvg = teles.length ? (tSum / teles.length) : 0;
@@ -1410,20 +1506,25 @@
         let aSum = accs.reduce((sum, r) => sum + r.score, 0);
         let aAvg = accs.length ? (aSum / accs.length) : 0;
 
+        let mSum = mlms.reduce((sum, r) => sum + r.score, 0);
+        let mAvg = mlms.length ? (mSum / mlms.length) : 0;
+
         let redlinesCount = records.reduce((sum, r) => sum + (r.redline === 1 ? 1 : 0), 0);
 
         let finalCombinedSum = 0, finalCount = 0;
         const map = {};
         records.forEach(r => {
-            if(!map[r.expertName]) map[r.expertName] = {t:[], a:[]};
+            if(!map[r.expertName]) map[r.expertName] = {t:[], a:[], m:[]};
             if(r.formType==='tele') map[r.expertName].t.push(r.score);
+            else if(r.formType==='mlm') map[r.expertName].m.push(r.score);
             else map[r.expertName].a.push(r.score);
         });
         Object.keys(map).forEach(k => {
             let t = map[k].t.length ? (map[k].t.reduce((a,b)=>a+b,0)/map[k].t.length) : null;
             let a = map[k].a.length ? (map[k].a.reduce((a,b)=>a+b,0)/map[k].a.length) : null;
-            if(t !== null && a !== null) finalCombinedSum += (t+a)/2;
-            else finalCombinedSum += (t !== null ? t : (a !== null ? a : 0));
+            let m = map[k].m.length ? (map[k].m.reduce((a,b)=>a+b,0)/map[k].m.length) : null;
+            let av = [t, a, m].filter(v => v !== null);
+            finalCombinedSum += av.length ? (av.reduce((x,y)=>x+y,0)/av.length) : 0;
             finalCount++;
         });
         let visibleCombinedAvg = finalCount ? (finalCombinedSum / finalCount) : 0;
@@ -1431,12 +1532,14 @@
         document.getElementById('kpiCombinedVal').textContent = visibleCombinedAvg.toFixed(1) + '%';
         document.getElementById('kpiTeleVal').textContent = tAvg.toFixed(1) + '%';
         document.getElementById('kpiAccVal').textContent = aAvg.toFixed(1) + '%';
+        document.getElementById('kpiMlmVal').textContent = mAvg.toFixed(1) + '%';
         document.getElementById('kpiRedlineVal').textContent = redlinesCount + ' مورد';
     }
 
     function renderRadarCharts(records) {
         const teleSub = records.filter(r => r.formType === 'tele');
         const accSub = records.filter(r => r.formType === 'account');
+        const mlmSub = records.filter(r => r.formType === 'mlm');
 
         function buildRadarData(sub, mapping) {
             const labels = [];
@@ -1457,12 +1560,15 @@
 
         const tData = buildRadarData(teleSub, teleCriteriaMapping);
         const aData = buildRadarData(accSub, accCriteriaMapping);
+        const mData = buildRadarData(mlmSub, mlmCriteriaMapping);
 
         if (teleRadarChartInstance) { teleRadarChartInstance.destroy(); teleRadarChartInstance = null; }
         if (accRadarChartInstance) { accRadarChartInstance.destroy(); accRadarChartInstance = null; }
+        if (mlmRadarChartInstance) { mlmRadarChartInstance.destroy(); mlmRadarChartInstance = null; }
 
         const teleCanvas = document.getElementById('teleRadarChart');
         const accCanvas = document.getElementById('accRadarChart');
+        const mlmCanvas = document.getElementById('mlmRadarChart');
 
         if (teleCanvas && tData.labels.length > 0) {
             const ctx = teleCanvas.getContext('2d');
@@ -1535,10 +1641,46 @@
                 }
             });
         }
+
+        if (mlmCanvas && mData.labels.length > 0) {
+            const ctx = mlmCanvas.getContext('2d');
+            mlmRadarChartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: mData.labels,
+                    datasets: [{
+                        label: 'درصد تحقق',
+                        data: mData.data,
+                        backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                        borderColor: 'rgba(245, 158, 11, 1)',
+                        pointBackgroundColor: 'rgba(245, 158, 11, 1)',
+                        borderWidth: 2,
+                        pointRadius: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { stepSize: 20, color: '#94a3b8', backdropColor: 'transparent' },
+                            pointLabels: { color: '#e2e8f0', font: { size: 11, family: 'Vazirmatn' } },
+                            grid: { color: 'rgba(30, 41, 59, 0.8)' },
+                            angleLines: { color: 'rgba(30, 41, 59, 0.8)' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
     }
 
     function renderDetailedAnalyticsZone(records, expertName) {
-        let stats = globalRankedList.find(e => e.name === expertName) || { teleAvg:0, accAvg:0, combinedAvg:0, teleCount:0, accCount:0, redlines:0 };
+        let stats = globalRankedList.find(e => e.name === expertName) || { teleAvg:0, accAvg:0, mlmAvg:0, combinedAvg:0, teleCount:0, accCount:0, mlmCount:0, redlines:0 };
         
         document.getElementById('cTeleAvg').textContent = stats.teleAvg !== null ? stats.teleAvg.toFixed(1) + '%' : 'فاقد ارزیابی';
         document.getElementById('cTeleCount').textContent = (stats.teleCount || 0) + ' تماس';
@@ -1548,9 +1690,17 @@
         document.getElementById('cAccCount').textContent = (stats.accCount || 0) + ' تماس';
         document.getElementById('cAccRed').textContent = records.filter(r => r.formType==='account' && r.redline===1).length + ' مورد';
 
+        document.getElementById('cMlmAvg').textContent = stats.mlmAvg !== null ? stats.mlmAvg.toFixed(1) + '%' : 'فاقد ارزیابی';
+        document.getElementById('cMlmCount').textContent = (stats.mlmCount || 0) + ' تماس';
+        document.getElementById('cMlmRed').textContent = records.filter(r => r.formType==='mlm' && r.redline===1).length + ' مورد';
+
         let badge = document.getElementById('comparisonStatusBadge');
         let diagText = document.getElementById('comparisonDiagnosticText');
-        if(stats.teleAvg !== null && stats.accAvg !== null) {
+        let hasMlmOnly = stats.mlmAvg !== null && stats.teleAvg === null && stats.accAvg === null;
+        if(hasMlmOnly) {
+            badge.className = "badge good"; badge.textContent = "ارزیابی تخصصی تیم MLM";
+            diagText.innerHTML = `🟢 <b>تحلیل تیم MLM:</b> کارشناس در تیم MLM ارزیابی شده است. میانگین تخصصی MLM برابر <b>${stats.mlmAvg.toFixed(1)}%</b> از روی <b>${stats.mlmCount || 0}</b> تماس شنودشده است.`;
+        } else if(stats.teleAvg !== null && stats.accAvg !== null) {
             let diff = stats.teleAvg - stats.accAvg;
             if(Math.abs(diff) <= 6) {
                 badge.className = "badge good"; badge.textContent = "توازن مهارتی ایده آل";
@@ -1579,7 +1729,8 @@
     function renderSuccessRatesBars(records) {
         const teleContainer = document.getElementById('teleCriteriaBreakdownContainer');
         const accContainer = document.getElementById('accCriteriaBreakdownContainer');
-        teleContainer.innerHTML = ''; accContainer.innerHTML = '';
+        const mlmContainer = document.getElementById('mlmCriteriaBreakdownContainer');
+        teleContainer.innerHTML = ''; accContainer.innerHTML = ''; mlmContainer.innerHTML = '';
 
         function buildRatesHtml(type, mapping) {
             let sub = records.filter(r => r.formType === type);
@@ -1604,6 +1755,7 @@
 
         teleContainer.innerHTML = buildRatesHtml('tele', teleCriteriaMapping);
         accContainer.innerHTML = buildRatesHtml('account', accCriteriaMapping);
+        mlmContainer.innerHTML = buildRatesHtml('mlm', mlmCriteriaMapping);
     }
 
     // DYNAMIC REDLINE AND REASON VIEWER (UPDATED AS REQUESTED)
@@ -1620,7 +1772,7 @@
             let phone = isPresentationModeActive ? '***' : r.leadPhone;
             li.innerHTML = `
                 <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--ink-soft); border-bottom: 1px dashed var(--line); padding-bottom:5px; margin-bottom:5px;">
-                    <span>نوع لید: <b>${r.formType==='tele'?'تله‌سلز':'اکانت'}</b></span> <span>شناسه لید: ${r.leadName} (${phone})</span>
+                    <span>نوع لید: <b>${r.formType==='tele'?'تله‌سلز':(r.formType==='mlm'?'MLM':'اکانت')}</b></span> <span>شناسه لید: ${r.leadName} (${phone})</span>
                 </div>
                 <div style="font-weight:700; color:var(--bad); margin-top:3px;"><i class="fa-solid fa-hand-holding-warning"></i> <b>علت خط قرمز (Redline Reason):</b> ${r.redlineReason || 'ثبت نشده/خالی'}</div>
                 <div style="font-size:12px; color:#e2e8f0; margin-top:5px; background: rgba(0,0,0,0.2); padding: 5px 8px; border-radius: 4px;"><i class="fa-solid fa-comment-dots"></i> <b>کامنت ارزیاب:</b> ${r.qcComment || 'توضیحات تکمیلی ثبت نشده'}</div>
@@ -1650,7 +1802,7 @@
             let tr = document.createElement('tr');
             let fails = [];
             const linkedVoice = voiceForLead(r.expertName, r.leadPhone);
-            let map = r.formType === 'tele' ? teleCriteriaMapping : accCriteriaMapping;
+            let map = r.formType === 'tele' ? teleCriteriaMapping : (r.formType === 'mlm' ? mlmCriteriaMapping : accCriteriaMapping);
             Object.keys(r.elements).forEach(k => {
                 if(r.elements[k] === 0) fails.push(map[k]);
             });
@@ -1658,7 +1810,7 @@
             tr.innerHTML = `
                 <td><code>${r.leadName}</code></td>
                 <td><div class="lead-voice-wrap" style="display:flex;align-items:center;gap:6px;"><code>${r.leadPhone}</code>${linkedVoice ? `<button class="btn success" style="padding:4px 7px;border-radius:50%;" title="پخش ویس این لید" onclick="event.stopPropagation();playVoice(decodeURIComponent('${encodeURIComponent(r.expertName)}'),'${linkedVoice.fileName}',this)"><i class="fa-solid fa-play"></i></button><audio preload="none" controls style="height:28px;width:120px;"></audio>` : `<button class="btn" disabled style="padding:4px 7px;border-radius:50%;" title="ویس منطبق با این شماره پیدا نشد"><i class="fa-solid fa-play"></i></button>`}</div></td>
-                <td><span class="badge" style="background:${r.formType==='tele'?'var(--good-soft)':'var(--purple)'}">${r.formType==='tele'?'لید تله‌سلز':'لید اکانت'}</span></td>
+                <td><span class="badge" style="background:${r.formType==='tele'?'var(--good-soft)':(r.formType==='mlm'?'var(--warn-soft)':'var(--purple)')}">${r.formType==='tele'?'لید تله‌سلز':(r.formType==='mlm'?'لید MLM':'لید اکانت')}</span></td>
                 <td><b style="color:#fff;">${r.score}</b></td>
                 <td>${r.redline === 1 ? '<span class="badge bad">نقض خط قرمز</span>':'<span class="badge good">پاس شده</span>'}</td>
                 <td style="color:var(--bad); font-weight:500; white-space:normal; font-size:11px;">${fails.join(' | ') || '<span style="color:var(--good)">بدون کسر امتیاز</span>'}</td>
@@ -1687,7 +1839,7 @@
                 });
                 if(valid > 0) {
                     let pct = (passed / valid) * 100;
-                    let title = `${mapping[k]} (${type==='tele'?'تله':'اکانت'} - ${Math.round(pct)}%)`;
+                    let title = `${mapping[k]} (${type==='tele'?'تله':(type==='mlm'?'MLM':'اکانت')} - ${Math.round(pct)}%)`;
                     if(pct >= 95) strengths.push(title);
                     else if (pct >= 80) improvements.push(title);
                     else weaknesses.push(title);
@@ -1696,6 +1848,7 @@
         }
         process('tele', teleCriteriaMapping);
         process('account', accCriteriaMapping);
+        process('mlm', mlmCriteriaMapping);
 
         let sHtml = strengths.map(s => `<span class="super-bold-badge success-heavy"><i class="fa-solid fa-circle-check"></i> ${s}</span>`).join(' ') || 'بدون مورد';
         let iHtml = improvements.map(s => `<span class="super-bold-badge warn-heavy"><i class="fa-solid fa-triangle-exclamation"></i> ${s}</span>`).join(' ') || 'بدون مورد';
@@ -1718,7 +1871,9 @@
             if(e.name === active) tr.style.background = '#1e293b';
 
             let tSymbol = '-';
-            if(e.teleAvg!==null && e.accAvg!==null) {
+            if(e.mlmCount > 0 && e.teleCount === 0 && e.accCount === 0) {
+                tSymbol = '🟢 تیم MLM';
+            } else if(e.teleAvg!==null && e.accAvg!==null) {
                 tSymbol = Math.abs(e.teleAvg - e.accAvg) <= 6 ? '⚖️ متوازن' : (e.teleAvg > e.accAvg ? '📞 قوی‌تر در تله':'🤝 قوی‌تر در اکانت');
             }
 
@@ -1728,7 +1883,8 @@
                 <td><span class="badge good" style="background:rgba(56,189,248,0.1); color:var(--brand);">${e.combinedAvg.toFixed(1)}%</span></td>
                 <td>${e.teleAvg !== null ? e.teleAvg.toFixed(1)+'%' : '-'}</td>
                 <td>${e.accAvg !== null ? e.accAvg.toFixed(1)+'%' : '-'}</td>
-                <td><small>${e.teleCount} تماس تله / ${e.accCount} اکانت</small></td>
+                <td>${e.mlmAvg !== null ? e.mlmAvg.toFixed(1)+'%' : '-'}</td>
+                <td><small>${e.teleCount} تماس تله / ${e.accCount} اکانت / ${e.mlmCount} تماس MLM</small></td>
                 <td style="color:${e.redlines > 0 ? 'var(--bad)':'var(--good)'}; font-weight:bold;">${e.redlines} مورد</td>
                 <td><small>${tSymbol}</small></td>
             `;
@@ -1792,6 +1948,30 @@
             aHead += '</tr>';
         });
         aTable.innerHTML = aHead + '</tbody>';
+
+        const mTable = document.getElementById('mlmErrorMatrixTable');
+        mTable.innerHTML = '';
+        let mHead = '<thead><tr><th class="sticky-col">نام کارشناس فروش</th>';
+        Object.keys(mlmCriteriaMapping).forEach(k => { mHead += `<th>${mlmCriteriaMapping[k]}</th>`; });
+        mHead += '</tr></thead><tbody>';
+
+        exps.forEach(ex => {
+            let sub = combinedDataset.filter(d => d.expertName === ex && d.formType==='mlm');
+            if(!sub.length) return;
+            mHead += `<tr><td class="sticky-col">${ex}</td>`;
+            Object.keys(mlmCriteriaMapping).forEach(k => {
+                let valid = 0, zero = 0;
+                sub.forEach(r => {
+                    if(r.elements[k]===0) { zero++; valid++; }
+                    else if(r.elements[k]===1) { valid++; }
+                });
+                let errPct = valid ? Math.round((zero / valid) * 100) : 0;
+                let bg = errPct > 35 ? 'rgba(239,68,68,0.25)' : (errPct > 15 ? 'rgba(245,158,11,0.18)' : 'rgba(16,185,129,0.06)');
+                mHead += `<td class="cell-value" style="background:${bg};">${errPct}%</td>`;
+            });
+            mHead += '</tr>';
+        });
+        mTable.innerHTML = mHead + '</tbody>';
     }
 
     // ACTIONS TRACKER LOGIC
@@ -1833,7 +2013,7 @@
         }
         commented.forEach(c => {
             let li = document.createElement('li');
-            li.innerHTML = `<div style="font-size:11px; color:var(--brand);">فرم: ${c.formType==='tele'?'تله‌سلز':'اکانت'} | لید: ${c.leadName}</div><div style="color:#fff;">${c.qcComment}</div>`;
+            li.innerHTML = `<div style="font-size:11px; color:var(--brand);">فرم: ${c.formType==='tele'?'تله‌سلز':(c.formType==='mlm'?'MLM':'اکانت')} | لید: ${c.leadName}</div><div style="color:#fff;">${c.qcComment}</div>`;
             list.appendChild(li);
         });
     }
@@ -1938,6 +2118,7 @@
 
     let mTeleChartInstance = null;
     let mAccChartInstance = null;
+    let mMlmChartInstance = null;
     let mMonthlyComparisonChartInstance = null;
     let previousMonthlyScores = {};
     let previousMonthlyProfiles = {};
@@ -1965,8 +2146,8 @@
     }
 
     function calculateElementRates(records) {
-        const result = { tele: {}, account: {} };
-        [['tele', teleCriteriaMapping], ['account', accCriteriaMapping]].forEach(([type, mapping]) => {
+        const result = { tele: {}, account: {}, mlm: {} };
+        [['tele', teleCriteriaMapping], ['account', accCriteriaMapping], ['mlm', mlmCriteriaMapping]].forEach(([type, mapping]) => {
             const sub = records.filter(r => r.formType === type);
             Object.keys(mapping).forEach(k => {
                 let valid=0, passed=0;
@@ -1990,8 +2171,9 @@
         }
         const current=calculateElementRates(records);
         const rows=[];
-        [['tele',teleCriteriaMapping,'تله'],['account',accCriteriaMapping,'اکانت']].forEach(([type,mapping,typeLabel])=>{
-            if(sessionRole==='account_qc' && type==='tele') return;
+        [['tele',teleCriteriaMapping,'تله'],['account',accCriteriaMapping,'اکانت'],['mlm',mlmCriteriaMapping,'MLM']].forEach(([type,mapping,typeLabel])=>{
+            if(sessionRole==='account_qc' && type!=='account') return;
+            if(sessionRole==='mlm_bmpl_qc' && type!=='mlm') return;
             Object.keys(mapping).forEach(k=>{
                 const now=current[type]?.[k], prev=previous[type]?.[k];
                 if(Number.isFinite(now) && Number.isFinite(Number(prev))) rows.push({label:mapping[k],type:typeLabel,now,prev:Number(prev),diff:now-Number(prev)});
@@ -2057,19 +2239,37 @@
         let stats = globalRankedList.find(e => e.name === ex);
         if(!stats) return;
 
-        // در دسترسی تیم اکانت، تمام اطلاعات و نمودارهای تله از کارنامه حذف می‌شوند.
+        // در دسترسی تیم اکانت فقط بخش اکانت، و در دسترسی تیم MLM فقط بخش MLM در کارنامه نمایش داده می‌شود.
         const accountOnlyReport = sessionRole === 'account_qc';
-        document.getElementById('mTeleChartSection').style.display = accountOnlyReport ? 'none' : 'block';
-        document.getElementById('mTeleDetailsSection').style.display = accountOnlyReport ? 'none' : 'block';
+        const mlmOnlyReport = sessionRole === 'mlm_bmpl_qc';
+        const showTele = !accountOnlyReport && !mlmOnlyReport;
+        const showAcc = !mlmOnlyReport;
+        const showMlm = !accountOnlyReport;
+        document.getElementById('mTeleChartSection').style.display = showTele ? 'block' : 'none';
+        document.getElementById('mAccChartSection').style.display = showAcc ? 'block' : 'none';
+        document.getElementById('mMlmChartSection').style.display = showMlm ? 'block' : 'none';
+        document.getElementById('mTeleDetailsSection').style.display = showTele ? 'block' : 'none';
+        document.getElementById('mAccDetailsSection').style.display = showAcc ? 'block' : 'none';
+        document.getElementById('mMlmDetailsSection').style.display = showMlm ? 'block' : 'none';
         document.getElementById('mTeamScoresRow').style.display = 'table-row';
         document.getElementById('mTeamCountsRow').style.display = 'table-row';
-        document.getElementById('mTeleScoreLabel').style.display = accountOnlyReport ? 'none' : 'table-cell';
-        document.getElementById('mTeleScoreCell').style.display = accountOnlyReport ? 'none' : 'table-cell';
-        document.getElementById('mTeleCountLabel').style.display = accountOnlyReport ? 'none' : 'table-cell';
-        document.getElementById('mTeleCountCell').style.display = accountOnlyReport ? 'none' : 'table-cell';
-        document.getElementById('mAccDetailsHeading').innerHTML = '<i class="fa-solid fa-handshake"></i> ' + (accountOnlyReport ? '۱.' : '۲.') + ' آنالیز جزئیات فرم اکانت (ارزیابی لید اکانت)';
-        document.getElementById('mActionsHeading').innerHTML = '<i class="fa-solid fa-thumbtack"></i> ' + (accountOnlyReport ? '۲.' : '۳.') + ' برنامه توسعه فردی و کارهای اصلاحی مصوب';
-        document.getElementById('mNotesHeading').innerHTML = '<i class="fa-solid fa-pen-to-square"></i> ' + (accountOnlyReport ? '۳.' : '۴.') + ' توضیحات و نکات تکمیلی ارزیاب کیفیت (QC)';
+        document.getElementById('mMlmScoresRow').style.display = showMlm ? 'table-row' : 'none';
+        document.getElementById('mTeleScoreLabel').style.display = showTele ? 'table-cell' : 'none';
+        document.getElementById('mTeleScoreCell').style.display = showTele ? 'table-cell' : 'none';
+        document.getElementById('mTeleCountLabel').style.display = showTele ? 'table-cell' : 'none';
+        document.getElementById('mTeleCountCell').style.display = showTele ? 'table-cell' : 'none';
+        document.getElementById('mAccScoreLabel').style.display = showAcc ? 'table-cell' : 'none';
+        document.getElementById('mAccScore').style.display = showAcc ? 'table-cell' : 'none';
+        document.getElementById('mAccCountLabel').style.display = showAcc ? 'table-cell' : 'none';
+        document.getElementById('mAccCountCalls').style.display = showAcc ? 'table-cell' : 'none';
+        // شماره‌گذاری پویای بخش‌ها بر اساس سکشن‌های قابل مشاهده
+        const faNums = ['۱','۲','۳','۴','۵'];
+        let secIdx = 0;
+        if (showTele) document.getElementById('mTeleDetailsHeading').innerHTML = '<i class="fa-solid fa-phone"></i> ' + faNums[secIdx++] + '. آنالیز جزئیات فرم تله‌سلز (ارزیابی لید تله)';
+        if (showAcc) document.getElementById('mAccDetailsHeading').innerHTML = '<i class="fa-solid fa-handshake"></i> ' + faNums[secIdx++] + '. آنالیز جزئیات فرم اکانت (ارزیابی لید اکانت)';
+        if (showMlm) document.getElementById('mMlmDetailsHeading').innerHTML = '<i class="fa-solid fa-network-wired"></i> ' + faNums[secIdx++] + '. آنالیز جزئیات فرم MLM (ارزیابی لید MLM)';
+        document.getElementById('mActionsHeading').innerHTML = '<i class="fa-solid fa-thumbtack"></i> ' + faNums[secIdx++] + '. برنامه توسعه فردی و کارهای اصلاحی مصوب';
+        document.getElementById('mNotesHeading').innerHTML = '<i class="fa-solid fa-pen-to-square"></i> ' + faNums[secIdx++] + '. توضیحات و نکات تکمیلی ارزیاب کیفیت (QC)';
 
         // Header dates
         const now = new Date();
@@ -2084,9 +2284,11 @@
         document.getElementById('mCombinedScore').textContent = stats.combinedAvg.toFixed(1) + '%';
         document.getElementById('mTeleScore').textContent = stats.teleAvg !== null ? stats.teleAvg.toFixed(1) + '%' : 'فاقد داده';
         document.getElementById('mAccScore').textContent = stats.accAvg !== null ? stats.accAvg.toFixed(1) + '%' : 'فاقد داده';
+        document.getElementById('mMlmScore').textContent = stats.mlmAvg !== null ? stats.mlmAvg.toFixed(1) + '%' : 'فاقد داده';
         document.getElementById('mTeleCountCalls').textContent = (stats.teleCount || 0) + ' تماس';
         document.getElementById('mAccCountCalls').textContent = (stats.accCount || 0) + ' تماس';
-        document.getElementById('mTotalCalls').textContent = ((stats.teleCount || 0) + (stats.accCount || 0)) + ' تماس';
+        document.getElementById('mMlmCountCalls').textContent = (stats.mlmCount || 0) + ' تماس';
+        document.getElementById('mTotalCalls').textContent = ((stats.teleCount || 0) + (stats.accCount || 0) + (stats.mlmCount || 0)) + ' تماس';
         document.getElementById('mRedlines').textContent = stats.redlines + ' مورد';
         const importedPrevious = previousMonthlyScores[ex];
         document.getElementById('mPreviousScoreInput').value = Number.isFinite(Number(importedPrevious)) ? Number(importedPrevious).toFixed(1) : '';
@@ -2094,6 +2296,7 @@
 
         document.getElementById('mTeleDetailsZone').innerHTML = document.getElementById('teleCriteriaBreakdownContainer').innerHTML;
         document.getElementById('mAccDetailsZone').innerHTML = document.getElementById('accCriteriaBreakdownContainer').innerHTML;
+        document.getElementById('mMlmDetailsZone').innerHTML = document.getElementById('mlmCriteriaBreakdownContainer').innerHTML;
         let actions = storedActions[ex] || [];
         document.getElementById('mActionsZone').innerHTML = actions.map(a => `• <b>${a.title}</b> [وضعیت: ${a.status}] — ${a.date || 'تاریخ نامشخص'}`).join('<br/>') || 'بدون اقدام اصلاحی ثبت‌شده.';
 
@@ -2118,7 +2321,7 @@
             minutesRedlines.forEach((r, idx) => {
                 html += `<li style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); border-radius: 6px; padding: 8px; font-size: 11.5px; color: #e2e8f0;">
                     <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                        <span><b>ردلاین #${idx+1}</b> — ${r.formType==='tele'?'تله‌سلز':'اکانت'}</span>
+                        <span><b>ردلاین #${idx+1}</b> — ${r.formType==='tele'?'تله‌سلز':(r.formType==='mlm'?'MLM':'اکانت')}</span>
                         <span style="color:var(--ink-soft); font-size:11px;">لید: ${r.leadName}</span>
                     </div>
                     <div style="color:var(--bad); font-weight:bold;"><i class="fa-solid fa-triangle-exclamation"></i> دلیل: ${r.redlineReason || 'ثبت نشده'}</div>
@@ -2142,7 +2345,7 @@
                 });
                 if(valid > 0) {
                     let pct = (passed / valid) * 100;
-                    let title = `${mapping[k]} (${type==='tele'?'تله':'اکانت'}: ${Math.round(pct)}%)`;
+                    let title = `${mapping[k]} (${type==='tele'?'تله':(type==='mlm'?'MLM':'اکانت')}: ${Math.round(pct)}%)`;
                     if(pct >= 95) sArr.push(title);
                     else if(pct >= 80) iArr.push(title);
                     else wArr.push(title);
@@ -2151,6 +2354,7 @@
         }
         processSkill('tele', teleCriteriaMapping);
         processSkill('account', accCriteriaMapping);
+        processSkill('mlm', mlmCriteriaMapping);
 
         let profileHtml = '';
         if(sArr.length) {
@@ -2171,6 +2375,7 @@
         setTimeout(() => {
             if (mTeleChartInstance) { mTeleChartInstance.destroy(); mTeleChartInstance = null; }
             if (mAccChartInstance) { mAccChartInstance.destroy(); mAccChartInstance = null; }
+            if (mMlmChartInstance) { mMlmChartInstance.destroy(); mMlmChartInstance = null; }
 
             const teleRecs = recs.filter(r => r.formType === 'tele');
             const teleItems = [];
@@ -2197,6 +2402,20 @@
                 if(valid > 0) {
                     let pct = (passed / valid) * 100;
                     accItems.push({ label: accCriteriaMapping[k], pct: pct });
+                }
+            });
+
+            const mlmRecs = recs.filter(r => r.formType === 'mlm');
+            const mlmItems = [];
+            Object.keys(mlmCriteriaMapping).forEach(k => {
+                let valid = 0, passed = 0;
+                mlmRecs.forEach(r => {
+                    if(r.elements[k] === 1) { passed++; valid++; }
+                    else if(r.elements[k] === 0) { valid++; }
+                });
+                if(valid > 0) {
+                    let pct = (passed / valid) * 100;
+                    mlmItems.push({ label: mlmCriteriaMapping[k], pct: pct });
                 }
             });
 
@@ -2306,6 +2525,60 @@
                 aCtx2d.fillStyle = '#94a3b8';
                 aCtx2d.textAlign = 'center';
                 aCtx2d.fillText('داده‌ای برای اکانت موجود نیست.', aCtx.width / 2, aCtx.height / 2);
+            }
+
+            const mlCtx = document.getElementById('mMlmAllChart');
+            if (mlCtx && mlmItems.length > 0) {
+                const mlLabels = mlmItems.map(p => p.label);
+                const mlData = mlmItems.map(p => Math.round(p.pct));
+                const mlColors = mlmItems.map(p => p.pct < 80 ? '#ef4444' : (p.pct < 95 ? '#f59e0b' : '#eab308'));
+                mMlmChartInstance = new Chart(mlCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: mlLabels,
+                        datasets: [{
+                            label: 'درصد تحقق',
+                            data: mlData,
+                            backgroundColor: mlColors,
+                            borderColor: mlColors.map(c=>c), borderWidth:1,
+                            hoverBackgroundColor: mlColors.map(c=>c+'dd'),
+                            borderRadius: 6,
+                            barThickness: 16
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                max: 100,
+                                grid: { color: 'rgba(30,41,59,0.6)' },
+                                ticks: { color: '#94a3b8', font: { family: 'Vazirmatn' } }
+                            },
+                            y: {
+                                grid: { display: false },
+                                ticks: { color: '#e2e8f0', font: { size: 11, family: 'Vazirmatn' } }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) { return 'درصد تحقق: ' + context.raw + '%'; }
+                                }
+                            }
+                        }
+                    }
+                });
+            } else if (mlCtx) {
+                const mlCtx2d = mlCtx.getContext('2d');
+                mlCtx2d.clearRect(0, 0, mlCtx.width, mlCtx.height);
+                mlCtx2d.font = '13px Vazirmatn';
+                mlCtx2d.fillStyle = '#94a3b8';
+                mlCtx2d.textAlign = 'center';
+                mlCtx2d.fillText('داده‌ای برای MLM موجود نیست.', mlCtx.width / 2, mlCtx.height / 2);
             }
         }, 50);
     }
@@ -2440,7 +2713,7 @@
     const ROLES = {
         '1565': { id: 'tele_qc', label: 'کارشناس QC تیم تله‌سلز' },
         '2056': { id: 'account_qc', label: 'کارشناس QC تیم اکانت' },
-        '8532': { id: 'mlm_bmpl_qc', label: 'کارشناس QC تیم MLM / BMPL' },
+        '8532': { id: 'mlm_bmpl_qc', label: 'کارشناس QC تیم MLM' },
         '7026': { id: 'admin', label: 'مدیر سیستم' }
     };
     let sessionRole = null;
@@ -2456,7 +2729,7 @@
         const allowedTeams = [];
         if (sessionRole === 'tele_qc') allowedTeams.push('tele');
         if (sessionRole === 'account_qc') allowedTeams.push('account');
-        if (sessionRole === 'mlm_bmpl_qc') allowedTeams.push('mlm_bmpl');
+        if (sessionRole === 'mlm_bmpl_qc') allowedTeams.push('mlm', 'mlm_bmpl');
 
         globalRankedList = allGlobalRankedList.filter(e => {
             const teams = e.teams && e.teams.length ? e.teams : [e.team];
@@ -2504,7 +2777,7 @@
         document.getElementById('uploadWrapperGlobal').style.display = 'grid';
 
         // اگر داده پیش‌تر بازیابی شده ولی هنوز رندر نشده است، همین حالا رندر کن.
-        if ((teleRawData.length || accRawData.length) && !combinedDataset.length) {
+        if ((teleRawData.length || accRawData.length || mlmRawData.length) && !combinedDataset.length) {
             compileAndRenderDashboard();
         }
         submit.disabled = false;
